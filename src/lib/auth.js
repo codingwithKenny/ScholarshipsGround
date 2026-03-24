@@ -12,33 +12,47 @@ export const authOptions = {
       },
 
       async authorize(credentials) {
-        const user = await prisma.admin.findUnique({
-          where: { email: credentials.email },
-        });
+        try {
+          // ✅ Validate input first
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
 
-        if (!user) {
-          throw new Error("No user found");
+          // ✅ Find user
+          const user = await prisma.admin.findUnique({
+            where: { email: credentials.email },
+          });
+
+          if (!user) return null;
+
+          // ✅ Compare password
+          const passwordMatch = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!passwordMatch) return null;
+
+          // ✅ Return safe user object
+          return {
+            id: user.id,
+            email: user.email,
+          };
+
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null; // ✅ NEVER throw (prevents build crash)
         }
-
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!passwordMatch) {
-          throw new Error("Wrong password");
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-        };
       },
     }),
   ],
 
   session: {
     strategy: "jwt",
+  },
+
+  pages: {
+    signIn: "/login", // optional but good
   },
 
   secret: process.env.NEXTAUTH_SECRET,
