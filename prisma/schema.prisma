@@ -1,0 +1,90 @@
+// This is your Prisma schema file
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum FundingType {
+  FULLY_FUNDED
+  PARTIALLY_FUNDED
+  TUITION_ONLY
+  SELF_FUNDED
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Scholarship {
+  id        String        @id @default(uuid())
+  title     String
+  slug      String        @unique
+
+  status    PublishStatus @default(DRAFT)
+
+  country   String
+  university String?
+
+  degree    String
+  fundingType FundingType @default(FULLY_FUNDED)
+
+  deadline  DateTime
+
+  overview  String?   // temporarily optional
+  
+
+  eligibility       String[]
+  eligibleCountries String[]
+
+  benefits          String[]
+  requirements      String[]
+
+  howToApply        String?   // temporarily optional
+
+  officialLink      String?
+
+  image             String?
+
+  featured          Boolean       @default(false)
+
+ createdAt DateTime @default(now())
+updatedAt DateTime @default(now()) @updatedAt
+
+@@index([country])
+@@index([degree])
+@@index([fundingType])
+@@index([deadline])
+@@index([status])
+@@index([university])
+}
+
+model Blog {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+
+  excerpt   String
+  content   String
+
+  image     String?
+
+  published Boolean  @default(false)
+  featured  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
