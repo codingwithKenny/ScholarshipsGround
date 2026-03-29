@@ -145,7 +145,7 @@ export default async function DetailPage({ params }) {
                   {getCategoryLabel(item.category)}
                 </span>
 
-                {item.trending && (
+                {/* {item.trending && (
                   <span className="text-xs px-3 py-1 rounded-full bg-orange-100 text-orange-700">
                     🔥 Trending
                   </span>
@@ -155,7 +155,7 @@ export default async function DetailPage({ params }) {
                   <span className="text-xs px-3 py-1 rounded-full bg-purple-100 text-purple-700">
                     ⭐ Popular
                   </span>
-                )}
+                )} */}
               </div>
 
               {/* TITLE */}
@@ -201,12 +201,13 @@ export default async function DetailPage({ params }) {
           <Section title="Overview" content={item.overview} />
 
           {/* EXTRA DETAILS */}
-          <Section title="Extra Details" content={item.extraDetails} />
+          {/* <Section title="Extra Details" content={item.extraDetails} /> */}
 
           {/* LISTS */}
           <ListSection title="Eligibility" data={item.eligibility} />
           <ListSection title="Benefits" data={item.benefits} />
           <ListSection title="Requirements" data={item.requirements} />
+          <Section title="Note" content={item.extraDetails} />
 
           {/* HOW TO APPLY */}
           <Section title="How To Apply" content={item.howToApply} />
