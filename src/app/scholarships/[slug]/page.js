@@ -207,10 +207,11 @@ export default async function DetailPage({ params }) {
           <ListSection title="Eligibility" data={item.eligibility} />
           <ListSection title="Benefits" data={item.benefits} />
           <ListSection title="Requirements" data={item.requirements} />
-          <Section title="Note" content={item.extraDetails} />
 
           {/* HOW TO APPLY */}
           <Section title="How To Apply" content={item.howToApply} />
+          <Section title="Note" content={item.extraDetails} />
+
 
           {/* ================= TRENDING POSTS ================= */}
           {trending.length > 0 && (
