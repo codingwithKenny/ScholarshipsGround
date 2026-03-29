@@ -200,11 +200,11 @@ export default async function ScholarshipsPage({ searchParams }) {
                           </p>
                         )}
 
-                        {sch.extraDetails && (
+                        {/* {sch.extraDetails && (
                           <p className="text-sm text-gray-500 mt-2 italic line-clamp-3">
                             {sch.extraDetails}
                           </p>
-                        )}
+                        )} */}
                       </div>
 
                       <div className="mt-5">
