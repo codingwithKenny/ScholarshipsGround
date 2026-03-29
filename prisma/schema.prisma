@@ -1,6 +1,6 @@
-// This is your Prisma schema file
-// https://pris.ly/d/prisma-schema
-
+// =========================
+// GENERATOR & DATASOURCE
+// =========================
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,6 +10,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// =========================
+// ENUMS
+// =========================
 enum PublishStatus {
   DRAFT
   PUBLISHED
@@ -22,6 +25,19 @@ enum FundingType {
   SELF_FUNDED
 }
 
+enum OpportunityCategory {
+  SCHOLARSHIP
+  INTERNSHIP
+  FELLOWSHIP
+  GRANT
+  ENTREPRENEURSHIP
+  TRAINING
+  JOB
+}
+
+// =========================
+// ADMIN
+// =========================
 model Admin {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -29,6 +45,9 @@ model Admin {
   createdAt DateTime @default(now())
 }
 
+// =========================
+// SCHOLARSHIP (MAIN MODEL)
+// =========================
 model Scholarship {
   id        String        @id @default(uuid())
   title     String
@@ -36,16 +55,22 @@ model Scholarship {
 
   status    PublishStatus @default(DRAFT)
 
-  country   String
-  university String?
+  // 🔥 CATEGORY (NEW)
+  category  OpportunityCategory @default(SCHOLARSHIP)
 
-  degree    String
-  fundingType FundingType @default(FULLY_FUNDED)
+  // 🌍 FLEXIBLE FIELDS
+  country   String?
 
-  deadline  DateTime
+  university   String?
+  organization String?
 
-  overview  String?   // temporarily optional
-  
+  degree       String?
+  fundingType  FundingType?
+
+  deadline     DateTime?
+
+  // 📝 CONTENT
+  overview     String?
 
   eligibility       String[]
   eligibleCountries String[]
@@ -53,25 +78,37 @@ model Scholarship {
   benefits          String[]
   requirements      String[]
 
-  howToApply        String?   // temporarily optional
+  howToApply  String?
 
-  officialLink      String?
+  // ✅ EXTRA DETAILS (NEW)
+  extraDetails String?
 
-  image             String?
+  officialLink String?
+  image        String?
 
-  featured          Boolean       @default(false)
+  // 🚀 FEATURES
+  featured  Boolean @default(false)
+  trending  Boolean @default(false)
+  popular   Boolean?  @default(false)
 
- createdAt DateTime @default(now())
-updatedAt DateTime @default(now()) @updatedAt
+  views     Int     @default(0)
 
-@@index([country])
-@@index([degree])
-@@index([fundingType])
-@@index([deadline])
-@@index([status])
-@@index([university])
+  // 🕒 TIMESTAMPS
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // ⚡ INDEXES (PERFORMANCE)
+  @@index([category])
+  @@index([country])
+  @@index([deadline])
+  @@index([status])
+  @@index([featured])
+  @@index([trending])
 }
 
+// =========================
+// BLOG
+// =========================
 model Blog {
   id        String   @id @default(uuid())
   title     String
@@ -87,4 +124,7 @@ model Blog {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@index([featured])
 }

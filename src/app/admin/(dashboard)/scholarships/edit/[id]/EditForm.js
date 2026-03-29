@@ -10,20 +10,20 @@ export default function EditForm({ scholarship }) {
   const [imageFile, setImageFile] = useState(null);
 
   const [form, setForm] = useState({
-  ...scholarship,
-  deadline: scholarship.deadline.toISOString().split("T")[0],
-
-  eligibility: scholarship.eligibility.join("\n"),
-  eligibleCountries: scholarship.eligibleCountries.join("\n"),
-  benefits: scholarship.benefits.join("\n"),
-  requirements: scholarship.requirements.join("\n"),
-});
+    ...scholarship,
+    deadline: scholarship.deadline.toISOString().split("T")[0],
+    eligibility: scholarship.eligibility.join("\n"),
+    eligibleCountries: scholarship.eligibleCountries.join("\n"),
+    benefits: scholarship.benefits.join("\n"),
+    requirements: scholarship.requirements.join("\n"),
+  });
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     const formData = new FormData();
 
+    // Basic fields
     formData.append("title", form.title);
     formData.append("country", form.country);
     formData.append("university", form.university || "");
@@ -39,6 +39,12 @@ export default function EditForm({ scholarship }) {
     formData.append("officialLink", form.officialLink);
     formData.append("status", form.status);
 
+    // New fields
+    formData.append("category", form.category || "");
+    formData.append("extraDetails", form.extraDetails || "");
+    formData.append("trending", form.trending ? "true" : "false");
+    formData.append("popular", form.popular ? "true" : "false");
+
     if (imageFile) {
       formData.append("image", imageFile);
     }
@@ -50,19 +56,12 @@ export default function EditForm({ scholarship }) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-
-      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Edit Scholarship
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Update scholarship details and publish status
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">Edit Scholarship</h1>
+        <p className="text-gray-500 mt-1">Update scholarship details and publish status</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-lg p-8">
-
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* Title */}
@@ -71,71 +70,88 @@ export default function EditForm({ scholarship }) {
             <input
               value={form.title}
               className="input-modern"
-              onChange={(e) =>
-                setForm({ ...form, title: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
           </div>
 
           {/* Country + University */}
           <div className="grid md:grid-cols-2 gap-6">
-
             <div>
               <label className="label">Country</label>
               <input
                 value={form.country}
                 className="input-modern"
-                onChange={(e) =>
-                  setForm({ ...form, country: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, country: e.target.value })}
               />
             </div>
-
             <div>
               <label className="label">University</label>
               <input
                 value={form.university || ""}
                 className="input-modern"
-                onChange={(e) =>
-                  setForm({ ...form, university: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, university: e.target.value })}
               />
             </div>
-
           </div>
 
           {/* Degree + Funding */}
           <div className="grid md:grid-cols-2 gap-6">
-
             <div>
               <label className="label">Degree</label>
               <input
                 value={form.degree}
                 className="input-modern"
-                onChange={(e) =>
-                  setForm({ ...form, degree: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, degree: e.target.value })}
               />
             </div>
-
             <div>
               <label className="label">Funding Type</label>
-
               <select
                 value={form.fundingType}
                 className="input-modern"
-                onChange={(e) =>
-                  setForm({ ...form, fundingType: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, fundingType: e.target.value })}
               >
                 <option value="FULLY_FUNDED">Fully Funded</option>
                 <option value="PARTIALLY_FUNDED">Partially Funded</option>
                 <option value="TUITION_ONLY">Tuition Only</option>
                 <option value="SELF_FUNDED">Self Funded</option>
               </select>
-
             </div>
+          </div>
 
+          {/* Category + Trending/Popular */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div>
+              <label className="label">Category</label>
+              <select
+                value={form.category || ""}
+                className="input-modern"
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                <option value="">Select Category</option>
+                <option value="SCHOLARSHIP">Scholarship</option>
+                <option value="INTERNSHIP">Internship</option>
+                <option value="ENTREPRENEURSHIP">Preneurship</option>
+                <option value="GRANT">Grant</option>
+                <option value="OPPORTUNITY">Opportunity</option>
+              </select>
+       </div>
+            <div>
+              <label className="label">Trending</label>
+              <input
+                type="checkbox"
+                checked={form.trending || false}
+                onChange={(e) => setForm({ ...form, trending: e.target.checked })}
+              />
+            </div>
+            <div>
+              <label className="label">Popular</label>
+              <input
+                type="checkbox"
+                checked={form.popular || false}
+                onChange={(e) => setForm({ ...form, popular: e.target.checked })}
+              />
+            </div>
           </div>
 
           {/* Deadline */}
@@ -145,118 +161,99 @@ export default function EditForm({ scholarship }) {
               type="date"
               value={form.deadline}
               className="input-modern"
-              onChange={(e) =>
-                setForm({ ...form, deadline: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, deadline: e.target.value })}
             />
           </div>
 
           {/* Overview */}
           <div>
             <label className="label">Overview</label>
-
             <textarea
               rows="4"
               value={form.overview || ""}
               className="textarea-modern"
-              onChange={(e) =>
-                setForm({ ...form, overview: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, overview: e.target.value })}
+            />
+          </div>
+
+          {/* Extra Details */}
+          <div>
+            <label className="label">Extra Details</label>
+            <textarea
+              rows="3"
+              value={form.extraDetails || ""}
+              className="textarea-modern"
+              onChange={(e) => setForm({ ...form, extraDetails: e.target.value })}
             />
           </div>
 
           {/* Eligibility */}
           <div>
             <label className="label">Eligibility</label>
-
             <textarea
               value={form.eligibility}
               rows="4"
               className="textarea-modern"
-              onChange={(e) =>
-                setForm({ ...form, eligibility: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
             />
           </div>
 
           {/* Eligible Countries */}
           <div>
             <label className="label">Eligible Countries</label>
-
             <input
               value={form.eligibleCountries}
               className="input-modern"
               placeholder="Nigeria, Ghana, India..."
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  eligibleCountries: e.target.value,
-                })
-              }
+              onChange={(e) => setForm({ ...form, eligibleCountries: e.target.value })}
             />
           </div>
 
           {/* Benefits */}
           <div>
             <label className="label">Benefits</label>
-
             <textarea
               rows="4"
               value={form.benefits}
               className="textarea-modern"
-              onChange={(e) =>
-                setForm({ ...form, benefits: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, benefits: e.target.value })}
             />
           </div>
 
           {/* Requirements */}
           <div>
             <label className="label">Requirements</label>
-
             <textarea
               value={form.requirements}
               className="textarea-modern"
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  requirements: e.target.value,
-                })
-              }
+              onChange={(e) => setForm({ ...form, requirements: e.target.value })}
             />
           </div>
 
           {/* How To Apply */}
           <div>
             <label className="label">How To Apply</label>
-
             <textarea
               rows="4"
               value={form.howToApply || ""}
               className="textarea-modern"
-              onChange={(e) =>
-                setForm({ ...form, howToApply: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, howToApply: e.target.value })}
             />
           </div>
 
           {/* Official Link */}
           <div>
             <label className="label">Official Application Link</label>
-
             <input
               value={form.officialLink || ""}
               className="input-modern"
-              onChange={(e) =>
-                setForm({ ...form, officialLink: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, officialLink: e.target.value })}
             />
           </div>
 
           {/* Image Upload */}
           <div>
             <label className="label">Scholarship Image</label>
-
             <input
               type="file"
               accept="image/*"
@@ -282,13 +279,10 @@ export default function EditForm({ scholarship }) {
           {/* Status */}
           <div>
             <label className="label">Status</label>
-
             <select
               value={form.status}
               className="input-modern"
-              onChange={(e) =>
-                setForm({ ...form, status: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
             >
               <option value="DRAFT">Draft</option>
               <option value="PUBLISHED">Published</option>
@@ -304,7 +298,6 @@ export default function EditForm({ scholarship }) {
               Update Scholarship
             </button>
           </div>
-
         </form>
       </div>
     </div>

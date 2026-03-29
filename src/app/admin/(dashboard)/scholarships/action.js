@@ -179,7 +179,6 @@
 
 // }
 
-
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -193,10 +192,8 @@ function generateSlug(title) {
     .replace(/\s+/g, "-");
 }
 
-// ✅ NEW PARSER (IMPORTANT)
 function parseList(input) {
   if (!input) return [];
-
   return input
     .split("\n")
     .map((item) => item.trim())
@@ -205,7 +202,6 @@ function parseList(input) {
 
 export async function createScholarship(formData) {
   const image = formData.get("image");
-
   let imageUrl = "";
 
   if (image && image.size > 0) {
@@ -236,7 +232,6 @@ export async function createScholarship(formData) {
 
       overview: formData.get("overview"),
 
-      // ✅ FIXED
       eligibility: parseList(formData.get("eligibility")),
       eligibleCountries: parseList(formData.get("eligibleCountries")),
       benefits: parseList(formData.get("benefits")),
@@ -245,6 +240,12 @@ export async function createScholarship(formData) {
       howToApply: formData.get("howToApply"),
       officialLink: formData.get("officialLink"),
       status: formData.get("status"),
+
+      // ✅ New fields
+      category: formData.get("category") || "SCHOLARSHIP",
+      extraDetails: formData.get("extraDetails") || "",
+      trending: formData.get("trending") === "true",
+      popular: formData.get("popular") === "true",
 
       image: imageUrl,
     },
@@ -255,7 +256,6 @@ export async function createScholarship(formData) {
 
 export async function updateScholarship(id, formData) {
   const image = formData.get("image");
-
   let imageUrl;
 
   if (image && image.size > 0) {
@@ -286,7 +286,6 @@ export async function updateScholarship(id, formData) {
 
       overview: formData.get("overview"),
 
-      // ✅ FIXED
       eligibility: parseList(formData.get("eligibility")),
       eligibleCountries: parseList(formData.get("eligibleCountries")),
       benefits: parseList(formData.get("benefits")),
@@ -295,6 +294,12 @@ export async function updateScholarship(id, formData) {
       howToApply: formData.get("howToApply"),
       officialLink: formData.get("officialLink"),
       status: formData.get("status"),
+
+      // ✅ New fields
+      category: formData.get("category") || "SCHOLARSHIP",
+      extraDetails: formData.get("extraDetails") || "",
+      trending: formData.get("trending") === "true",
+      popular: formData.get("popular") === "true",
 
       ...(imageUrl && { image: imageUrl }),
     },
