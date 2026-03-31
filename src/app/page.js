@@ -119,10 +119,13 @@ export default async function Home() {
 
   {/* Load More Button */}
   <div className="mt-8 text-center">
-    <button className="bg-gradient-to-r from-blue-950 to-teal-500 text-white font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 transition">
-      Load More
-    </button>
-  </div>
+  <Link
+    href="/scholarships"
+    className="bg-gradient-to-r from-blue-950 to-teal-500 text-white font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 transition"
+  >
+    Load More
+  </Link>
+</div>
 </section>
 
       {/* Community & Trending / Popular */}
@@ -239,7 +242,7 @@ export default async function Home() {
             <p className="font-semibold text-gray-900">Study in Europe</p>
           </Link>
           <Link href="/scholarships?country=USA" className="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-2xl hover:scale-105 transition transform border-l-4 border-blue-400">
-            <p className="font-semibold text-gray-900">Study in USA</p>
+            <p className="font-semibold text-gray-900">Study in United States</p>
           </Link>
           <Link href="/scholarships?country=Canada" className="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-2xl hover:scale-105 transition transform border-l-4 border-blue-400">
             <p className="font-semibold text-gray-900">Study in Canada</p>

@@ -47,7 +47,7 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold mb-4">Study Destinations</h3>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/scholarships?country=USA" className="hover:text-white transition">Study in USA</Link></li>
+            <li><Link href="/scholarships?country=USA" className="hover:text-white transition">Study in United States</Link></li>
             <li><Link href="/scholarships?country=UK" className="hover:text-white transition">Study in UK</Link></li>
             <li><Link href="/scholarships?country=Canada" className="hover:text-white transition">Study in Canada</Link></li>
             <li><Link href="/scholarships?country=Germany" className="hover:text-white transition">Study in Germany</Link></li>
