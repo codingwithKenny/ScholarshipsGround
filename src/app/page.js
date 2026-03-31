@@ -70,7 +70,7 @@ export default async function Home() {
     {scholarships.map((sch) => (
       <div
         key={sch.id}
-        className="flex bg-white border rounded-xl shadow hover:shadow-xl transition transform hover:-translate-y-1 overflow-hidden"
+        className="flex bg-white  rounded-xl shadow hover:shadow-xl transition transform hover:-translate-y-1 overflow-hidden"
       >
         {/* Left: Image */}
         <div className="w-32 h-32 flex-shrink-0 overflow-hidden">
@@ -84,7 +84,7 @@ export default async function Home() {
         {/* Right: Content */}
         <div className="flex-1 p-4 flex flex-col justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
+            <h3 className="text-xs text-gray-900">
               {sch.title}
             </h3>
             <p className="text-xs text-gray-500 mt-1 truncate">
@@ -94,6 +94,14 @@ export default async function Home() {
               <span className="font-semibold">Deadline:</span>{" "}
               {new Date(sch.deadline).toLocaleDateString()}
             </p>
+           <p className="text-xs text-gray-500 mt-1">
+  <span className="font-semibold">Posted:</span>{" "}
+  {new Date(sch.createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}
+</p>
           </div>
 
           <div className="mt-3">

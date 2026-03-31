@@ -11,295 +11,326 @@ export default function EditForm({ scholarship }) {
 
   const [form, setForm] = useState({
     ...scholarship,
-    deadline: scholarship.deadline.toISOString().split("T")[0],
+    deadline: scholarship.deadline
+      ? new Date(scholarship.deadline).toISOString().split("T")[0]
+      : "",
     eligibility: scholarship.eligibility.join("\n"),
     eligibleCountries: scholarship.eligibleCountries.join("\n"),
     benefits: scholarship.benefits.join("\n"),
     requirements: scholarship.requirements.join("\n"),
   });
 
+  const isScholarship = form.category === "SCHOLARSHIP";
+  const isFellowship = form.category === "FELLOWSHIP";
+  const isGrant = form.category === "GRANT";
+  const isJob = form.category === "JOB";
+  const isInternship = form.category === "INTERNSHIP";
+  const isTraining = form.category === "TRAINING";
+
+  const showFunding = isScholarship || isFellowship || isGrant;
+  const showSalary = isJob;
+  const showDuration = isInternship || isTraining;
+
   async function handleSubmit(e) {
     e.preventDefault();
 
     const formData = new FormData();
 
-    // Basic fields
-    formData.append("title", form.title);
-    formData.append("country", form.country);
-    formData.append("university", form.university || "");
-    formData.append("degree", form.degree);
-    formData.append("fundingType", form.fundingType);
-    formData.append("deadline", form.deadline);
-    formData.append("overview", form.overview);
-    formData.append("eligibility", form.eligibility);
-    formData.append("eligibleCountries", form.eligibleCountries);
-    formData.append("benefits", form.benefits);
-    formData.append("requirements", form.requirements);
-    formData.append("howToApply", form.howToApply);
-    formData.append("officialLink", form.officialLink);
-    formData.append("status", form.status);
+    Object.entries(form).forEach(([key, value]) => {
+      formData.append(key, value || "");
+    });
 
-    // New fields
-    formData.append("category", form.category || "");
-    formData.append("extraDetails", form.extraDetails || "");
-    formData.append("trending", form.trending ? "true" : "false");
-    formData.append("popular", form.popular ? "true" : "false");
-
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
+    if (imageFile) formData.append("image", imageFile);
 
     await updateScholarship(scholarship.id, formData);
-
     router.push("/admin/scholarships");
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Edit Scholarship</h1>
-        <p className="text-gray-500 mt-1">Update scholarship details and publish status</p>
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* HEADER */}
+      <div className="bg-gradient-to-r from-blue-900 to-teal-500 p-8 rounded-2xl text-white">
+        <h1 className="text-3xl font-bold">Edit Opportunity</h1>
+        <p className="opacity-90 mt-2">Update opportunity details and publish status</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Title */}
+      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-2xl p-8 space-y-8">
+        {/* BASIC INFO */}
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="label">Title</label>
             <input
-              value={form.title}
               className="input-modern"
+              value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
+              required
             />
           </div>
 
-          {/* Country + University */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="label">Country</label>
-              <input
-                value={form.country}
-                className="input-modern"
-                onChange={(e) => setForm({ ...form, country: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="label">University</label>
-              <input
-                value={form.university || ""}
-                className="input-modern"
-                onChange={(e) => setForm({ ...form, university: e.target.value })}
-              />
-            </div>
+          <div>
+            <label className="label">Category</label>
+            <select
+              className="input-modern"
+              value={form.category || ""}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+            >
+              <option value="">Select Category</option>
+              <option value="SCHOLARSHIP">Scholarship</option>
+              <option value="INTERNSHIP">Internship</option>
+              <option value="GRANT">Grant</option>
+              <option value="FELLOWSHIP">Fellowship</option>
+              <option value="ENTREPRENEURSHIP">Entrepreneurship</option>
+              <option value="TRAINING">Training</option>
+              <option value="JOB">Job</option>
+            </select>
           </div>
 
-          {/* Degree + Funding */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="label">Country</label>
+            <input
+              className="input-modern"
+              value={form.country}
+              onChange={(e) => setForm({ ...form, country: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className="label">{isScholarship ? "University" : "Organization"}</label>
+            <input
+              className="input-modern"
+              value={form.university || form.organization || ""}
+              onChange={(e) =>
+                setForm({ ...form, university: e.target.value, organization: e.target.value })
+              }
+            />
+          </div>
+
+          {isScholarship && (
             <div>
               <label className="label">Degree</label>
               <input
-                value={form.degree}
                 className="input-modern"
+                value={form.degree || ""}
                 onChange={(e) => setForm({ ...form, degree: e.target.value })}
               />
             </div>
+          )}
+
+          {showFunding && (
             <div>
               <label className="label">Funding Type</label>
               <select
-                value={form.fundingType}
                 className="input-modern"
+                value={form.fundingType || ""}
                 onChange={(e) => setForm({ ...form, fundingType: e.target.value })}
               >
+                <option value="">Select Funding Type</option>
                 <option value="FULLY_FUNDED">Fully Funded</option>
                 <option value="PARTIALLY_FUNDED">Partially Funded</option>
                 <option value="TUITION_ONLY">Tuition Only</option>
                 <option value="SELF_FUNDED">Self Funded</option>
               </select>
             </div>
-          </div>
+          )}
 
-          {/* Category + Trending/Popular */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {isGrant && (
             <div>
-              <label className="label">Category</label>
-              <select
-                value={form.category || ""}
+              <label className="label">Amount</label>
+              <input
                 className="input-modern"
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-              >
-                <option value="">Select Category</option>
-                <option value="SCHOLARSHIP">Scholarship</option>
-                <option value="INTERNSHIP">Internship</option>
-                <option value="ENTREPRENEURSHIP">Preneurship</option>
-                <option value="GRANT">Grant</option>
-                <option value="OPPORTUNITY">Opportunity</option>
-              </select>
-       </div>
-            <div>
-              <label className="label">Trending</label>
-              <input
-                type="checkbox"
-                checked={form.trending || false}
-                onChange={(e) => setForm({ ...form, trending: e.target.checked })}
+                value={form.amount || ""}
+                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                placeholder="$5000"
               />
             </div>
-            <div>
-              <label className="label">Popular</label>
-              <input
-                type="checkbox"
-                checked={form.popular || false}
-                onChange={(e) => setForm({ ...form, popular: e.target.checked })}
-              />
-            </div>
-          </div>
+          )}
 
-          {/* Deadline */}
+          {showSalary && (
+            <div>
+              <label className="label">Salary</label>
+              <input
+                className="input-modern"
+                value={form.salary || ""}
+                onChange={(e) => setForm({ ...form, salary: e.target.value })}
+                placeholder="$60,000/year"
+              />
+            </div>
+          )}
+
+          {showDuration && (
+            <div>
+              <label className="label">Duration</label>
+              <input
+                className="input-modern"
+                value={form.duration || ""}
+                onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                placeholder="3 months"
+              />
+            </div>
+          )}
+
           <div>
             <label className="label">Deadline</label>
             <input
               type="date"
-              value={form.deadline}
               className="input-modern"
+              value={form.deadline || ""}
               onChange={(e) => setForm({ ...form, deadline: e.target.value })}
             />
           </div>
+        </div>
 
-          {/* Overview */}
+        {/* TEXT AREAS */}
+        <div className="space-y-4">
           <div>
             <label className="label">Overview</label>
             <textarea
-              rows="4"
-              value={form.overview || ""}
               className="textarea-modern"
+              rows={4}
+              value={form.overview || ""}
               onChange={(e) => setForm({ ...form, overview: e.target.value })}
             />
           </div>
 
-          {/* Extra Details */}
           <div>
             <label className="label">Extra Details</label>
             <textarea
-              rows="3"
-              value={form.extraDetails || ""}
               className="textarea-modern"
+              rows={3}
+              value={form.extraDetails || ""}
               onChange={(e) => setForm({ ...form, extraDetails: e.target.value })}
             />
           </div>
 
-          {/* Eligibility */}
           <div>
-            <label className="label">Eligibility</label>
+            <label className="label">Eligibility (one per line)</label>
             <textarea
-              value={form.eligibility}
-              rows="4"
               className="textarea-modern"
+              rows={3}
+              value={form.eligibility || ""}
               onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
             />
           </div>
 
-          {/* Eligible Countries */}
           <div>
-            <label className="label">Eligible Countries</label>
+            <label className="label">Eligible Countries (comma separated)</label>
             <input
-              value={form.eligibleCountries}
               className="input-modern"
-              placeholder="Nigeria, Ghana, India..."
+              value={form.eligibleCountries || ""}
               onChange={(e) => setForm({ ...form, eligibleCountries: e.target.value })}
             />
           </div>
 
-          {/* Benefits */}
           <div>
             <label className="label">Benefits</label>
             <textarea
-              rows="4"
-              value={form.benefits}
               className="textarea-modern"
+              rows={3}
+              value={form.benefits || ""}
               onChange={(e) => setForm({ ...form, benefits: e.target.value })}
             />
           </div>
 
-          {/* Requirements */}
           <div>
             <label className="label">Requirements</label>
             <textarea
-              value={form.requirements}
               className="textarea-modern"
+              rows={3}
+              value={form.requirements || ""}
               onChange={(e) => setForm({ ...form, requirements: e.target.value })}
             />
           </div>
 
-          {/* How To Apply */}
           <div>
             <label className="label">How To Apply</label>
             <textarea
-              rows="4"
-              value={form.howToApply || ""}
               className="textarea-modern"
+              rows={3}
+              value={form.howToApply || ""}
               onChange={(e) => setForm({ ...form, howToApply: e.target.value })}
             />
           </div>
 
-          {/* Official Link */}
           <div>
             <label className="label">Official Application Link</label>
             <input
-              value={form.officialLink || ""}
               className="input-modern"
+              value={form.officialLink || ""}
               onChange={(e) => setForm({ ...form, officialLink: e.target.value })}
             />
           </div>
+        </div>
 
-          {/* Image Upload */}
-          <div>
-            <label className="label">Scholarship Image</label>
+        {/* IMAGE UPLOAD */}
+        <div>
+          <label className="label">Scholarship Image</label>
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition relative">
+            {imageFile ? (
+              <img
+                src={URL.createObjectURL(imageFile)}
+                alt="Preview"
+                className="max-h-56 object-contain rounded-md"
+              />
+            ) : form.image ? (
+              <img
+                src={form.image}
+                alt="Current Image"
+                className="max-h-56 object-contain rounded-md"
+              />
+            ) : (
+              <p className="text-gray-400">Click or drag to upload a new image</p>
+            )}
             <input
               type="file"
               accept="image/*"
-              className="input-modern"
               onChange={(e) => setImageFile(e.target.files[0])}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-
-            {!imageFile && form.image && (
-              <img
-                src={form.image}
-                className="mt-4 rounded-xl w-full max-h-56 object-cover"
-              />
-            )}
-
-            {imageFile && (
-              <img
-                src={URL.createObjectURL(imageFile)}
-                className="mt-4 rounded-xl w-full max-h-56 object-cover"
-              />
-            )}
           </div>
+        </div>
 
-          {/* Status */}
-          <div>
-            <label className="label">Status</label>
-            <select
-              value={form.status}
-              className="input-modern"
-              onChange={(e) => setForm({ ...form, status: e.target.value })}
-            >
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
-            </select>
-          </div>
+        {/* FLAGS */}
+        <div className="flex gap-6">
+          <label>
+            <input
+              type="checkbox"
+              checked={form.trending || false}
+              onChange={(e) => setForm({ ...form, trending: e.target.checked })}
+            />{" "}
+            Trending
+          </label>
 
-          {/* Submit */}
-          <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-950 to-teal-500 text-white py-3 rounded-xl font-semibold shadow-lg hover:scale-[1.02] transition"
-            >
-              Update Scholarship
-            </button>
-          </div>
-        </form>
-      </div>
+          <label>
+            <input
+              type="checkbox"
+              checked={form.popular || false}
+              onChange={(e) => setForm({ ...form, popular: e.target.checked })}
+            />{" "}
+            Popular
+          </label>
+        </div>
+
+        {/* STATUS */}
+        <div>
+          <label className="label">Status</label>
+          <select
+            className="input-modern"
+            value={form.status || "DRAFT"}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
+          >
+            <option value="DRAFT">Draft</option>
+            <option value="PUBLISHED">Published</option>
+          </select>
+        </div>
+
+        {/* SUBMIT */}
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-blue-950 to-teal-500 text-white py-3 rounded-xl font-semibold shadow-lg hover:scale-[1.02] transition"
+        >
+          Update Opportunity
+        </button>
+      </form>
     </div>
   );
 }

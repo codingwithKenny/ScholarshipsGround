@@ -123,7 +123,7 @@ export default async function ScholarshipsPage({ searchParams }) {
 
         <div className="grid lg:grid-cols-4 gap-10">
           {/* LEFT SIDEBAR */}
-          <aside className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm h-fit sticky top-24">
+          <aside className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm h-fit lg:sticky lg:top-24">
             <h2 className="font-bold mb-4 text-lg">🌍 Countries</h2>
             <ul className="space-y-2 text-sm max-h-80 overflow-y-auto pr-2">
               {countries.map((c, i) => (

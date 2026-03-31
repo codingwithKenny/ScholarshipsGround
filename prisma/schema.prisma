@@ -85,6 +85,9 @@ model Scholarship {
 
   officialLink String?
   image        String?
+  amount   String?
+salary   String?
+duration String?
 
   // 🚀 FEATURES
   featured  Boolean @default(false)

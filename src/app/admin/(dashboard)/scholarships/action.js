@@ -185,6 +185,7 @@ import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { revalidatePath } from "next/cache";
 
+// Slug generator
 function generateSlug(title) {
   return title
     .toLowerCase()
@@ -192,6 +193,7 @@ function generateSlug(title) {
     .replace(/\s+/g, "-");
 }
 
+// Helper to parse textarea inputs into arrays
 function parseList(input) {
   if (!input) return [];
   return input
@@ -200,6 +202,9 @@ function parseList(input) {
     .filter(Boolean);
 }
 
+// ================================
+// CREATE SCHOLARSHIP / OPPORTUNITY
+// ================================
 export async function createScholarship(formData) {
   const image = formData.get("image");
   let imageUrl = "";
@@ -224,28 +229,41 @@ export async function createScholarship(formData) {
     data: {
       title: formData.get("title"),
       slug: generateSlug(formData.get("title")),
-      country: formData.get("country"),
-      university: formData.get("university"),
-      degree: formData.get("degree"),
-      fundingType: formData.get("fundingType"),
-      deadline: new Date(formData.get("deadline")),
 
-      overview: formData.get("overview"),
+      category: formData.get("category") || "SCHOLARSHIP",
+      status: formData.get("status"),
+
+      country: formData.get("country") || null,
+      university: formData.get("university") || null,
+      organization: formData.get("organization") || null,
+      degree: formData.get("degree") || null,
+
+      fundingType: formData.get("fundingType") || null,
+
+      deadline: formData.get("deadline")
+        ? new Date(formData.get("deadline"))
+        : null,
+
+      overview: formData.get("overview") || null,
 
       eligibility: parseList(formData.get("eligibility")),
       eligibleCountries: parseList(formData.get("eligibleCountries")),
       benefits: parseList(formData.get("benefits")),
       requirements: parseList(formData.get("requirements")),
 
-      howToApply: formData.get("howToApply"),
-      officialLink: formData.get("officialLink"),
-      status: formData.get("status"),
+      howToApply: formData.get("howToApply") || null,
+      extraDetails: formData.get("extraDetails") || null,
 
-      // ✅ New fields
-      category: formData.get("category") || "SCHOLARSHIP",
-      extraDetails: formData.get("extraDetails") || "",
-      trending: formData.get("trending") === "true",
-      popular: formData.get("popular") === "true",
+      officialLink: formData.get("officialLink") || null,
+
+      // NEW FIELDS
+      amount: formData.get("amount") || null,
+      salary: formData.get("salary") || null,
+      duration: formData.get("duration") || null,
+
+      featured: formData.get("featured") === "on",
+      trending: formData.get("trending") === "on",
+      popular: formData.get("popular") === "on",
 
       image: imageUrl,
     },
@@ -254,66 +272,122 @@ export async function createScholarship(formData) {
   revalidatePath("/admin/scholarships");
 }
 
+// ================================
+// UPDATE SCHOLARSHIP / OPPORTUNITY
+// ================================
+
+
+
+
+
+
+// Helper to upload image to Cloudinary
+async function uploadImage(file) {
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  const result = await new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: "scholarships" },
+      (err, res) => {
+        if (err) reject(err);
+        resolve(res);
+      }
+    ).end(buffer);
+  });
+
+  return result;
+}
+
+// ================================
+// UPDATE SCHOLARSHIP / OPPORTUNITY
+// ================================
 export async function updateScholarship(id, formData) {
-  const image = formData.get("image");
-  let imageUrl;
+  try {
+    // Convert FormData to JS object
+    const data = Object.fromEntries(formData.entries());
 
-  if (image && image.size > 0) {
-    const bytes = await image.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Convert booleans
+    data.trending = data.trending === "true" || data.trending === true;
+    data.popular = data.popular === "true" || data.popular === true;
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream({ folder: "scholarships" }, (error, result) => {
-          if (error) reject(error);
-          resolve(result);
-        })
-        .end(buffer);
+    // Convert arrays from textarea inputs
+    data.eligibility = parseList(data.eligibility);
+    data.eligibleCountries = parseList(data.eligibleCountries);
+    data.benefits = parseList(data.benefits);
+    data.requirements = parseList(data.requirements);
+
+    // Handle optional fields
+    const optionalFields = [
+      "university",
+      "organization",
+      "degree",
+      "fundingType",
+      "amount",
+      "salary",
+      "duration",
+      "overview",
+      "howToApply",
+      "extraDetails",
+      "officialLink",
+      "deadline",
+    ];
+
+    optionalFields.forEach((field) => {
+      if (!data[field]) data[field] = null;
     });
 
-    imageUrl = uploadResult.secure_url;
+    // Handle image upload if a new image is selected
+    if (formData.get("image") && formData.get("image").size > 0) {
+      const imageFile = formData.get("image");
+      const uploadResult = await uploadImage(imageFile);
+      data.image = uploadResult.secure_url;
+    }
+
+    // Prisma update
+    const updated = await prisma.scholarship.update({
+      where: { id },
+      data: {
+        title: data.title,
+        status: data.status, // draft → published works
+        category: data.category || "SCHOLARSHIP",
+        country: data.country,
+        university: data.university,
+        organization: data.organization,
+        degree: data.degree,
+        fundingType: data.fundingType,
+        amount: data.amount,
+        salary: data.salary,
+        duration: data.duration,
+        deadline: data.deadline ? new Date(data.deadline) : null,
+        overview: data.overview,
+        eligibility: data.eligibility || [],
+        eligibleCountries: data.eligibleCountries || [],
+        benefits: data.benefits || [],
+        requirements: data.requirements || [],
+        howToApply: data.howToApply,
+        extraDetails: data.extraDetails,
+        officialLink: data.officialLink,
+        trending: data.trending,
+        popular: data.popular,
+        image: data.image || undefined,
+      },
+    });
+
+    revalidatePath("/admin/scholarships");
+    return updated;
+  } catch (error) {
+    console.error("Error updating scholarship:", error);
+    throw new Error("Failed to update scholarship");
   }
-
-  await prisma.scholarship.update({
+}
+// ================================
+// DELETE SCHOLARSHIP / OPPORTUNITY
+// ================================
+export async function deleteScholarship(id) {
+  await prisma.scholarship.delete({
     where: { id },
-    data: {
-      title: formData.get("title"),
-      country: formData.get("country"),
-      university: formData.get("university"),
-      degree: formData.get("degree"),
-      fundingType: formData.get("fundingType"),
-      deadline: new Date(formData.get("deadline")),
-
-      overview: formData.get("overview"),
-
-      eligibility: parseList(formData.get("eligibility")),
-      eligibleCountries: parseList(formData.get("eligibleCountries")),
-      benefits: parseList(formData.get("benefits")),
-      requirements: parseList(formData.get("requirements")),
-
-      howToApply: formData.get("howToApply"),
-      officialLink: formData.get("officialLink"),
-      status: formData.get("status"),
-
-      // ✅ New fields
-      category: formData.get("category") || "SCHOLARSHIP",
-      extraDetails: formData.get("extraDetails") || "",
-      trending: formData.get("trending") === "true",
-      popular: formData.get("popular") === "true",
-
-      ...(imageUrl && { image: imageUrl }),
-    },
   });
 
   revalidatePath("/admin/scholarships");
 }
-
-export async function deleteScholarship(id) {
-
-await prisma.scholarship.delete({
-   where: { id },
- });
-
- revalidatePath("/admin/scholarships");
-
- }

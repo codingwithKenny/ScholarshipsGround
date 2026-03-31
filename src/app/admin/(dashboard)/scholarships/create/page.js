@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createScholarship } from "../action";
 
-export default function CreateScholarship() {
+export default function CreateOpportunity() {
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -14,7 +14,10 @@ export default function CreateScholarship() {
     university: "",
     organization: "",
     degree: "",
-    fundingType: "FULLY_FUNDED",
+    fundingType: "",
+    amount: "",
+    salary: "",
+    duration: "",
     deadline: "",
     overview: "",
     eligibility: "",
@@ -31,15 +34,22 @@ export default function CreateScholarship() {
 
   const [imageFile, setImageFile] = useState(null);
 
+  const isScholarship = form.category === "SCHOLARSHIP";
+  const isFellowship = form.category === "FELLOWSHIP";
+  const isGrant = form.category === "GRANT";
+  const isJob = form.category === "JOB";
+  const isInternship = form.category === "INTERNSHIP";
+  const isTraining = form.category === "TRAINING";
+
+  const showFunding = isScholarship || isFellowship || isGrant;
+  const showSalary = isJob;
+  const showDuration = isInternship || isTraining;
+
   async function handleSubmit(e) {
     e.preventDefault();
 
     const formData = new FormData();
-
-    Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
+    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
     if (imageFile) formData.append("image", imageFile);
 
     await createScholarship(formData);
@@ -48,229 +58,335 @@ export default function CreateScholarship() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-blue-950 to-teal-500 p-8 rounded-2xl text-white shadow-lg">
+      <div className="bg-gradient-to-r from-blue-900 to-teal-500 p-8 rounded-2xl text-white">
         <h1 className="text-3xl font-bold">Create Opportunity</h1>
         <p className="opacity-90 mt-2">
-          Add a new opportunity to the platform
+          Add scholarships, internships, jobs, grants, and more
         </p>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-2xl p-8 space-y-8"
-      >
+      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-2xl p-8 space-y-8">
+
         {/* BASIC INFO */}
         <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">
-            Basic Information
-          </h2>
+          <h2 className="text-xl font-semibold mb-6">Basic Information</h2>
           <div className="grid md:grid-cols-2 gap-6">
 
-            <input
-              className="input"
-              placeholder="Title"
-              required
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
+            <label className="flex flex-col">
+              Title *
+              <input
+                className="input"
+                placeholder="Opportunity Title"
+                required
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+              />
+            </label>
 
-            <select
-              className="input"
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-            >
-              <option value="SCHOLARSHIP">Scholarship</option>
-              <option value="INTERNSHIP">Internship</option>
-              <option value="GRANT">Grant</option>
-              <option value="FELLOWSHIP">Fellowship</option>
-              <option value="ENTREPRENEURSHIP">Entrepreneurship</option>
-              <option value="TRAINING">Training</option>
-              <option value="JOB">Job</option>
-            </select>
+            <label className="flex flex-col">
+              Category *
+              <select
+                className="input"
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                <option value="SCHOLARSHIP">Scholarship</option>
+                <option value="INTERNSHIP">Internship</option>
+                <option value="GRANT">Grant</option>
+                <option value="FELLOWSHIP">Fellowship</option>
+                <option value="ENTREPRENEURSHIP">Entrepreneurship</option>
+                <option value="TRAINING">Training</option>
+                <option value="JOB">Job</option>
+              </select>
+            </label>
 
-            <input
-              className="input"
-              placeholder="Country"
-              required
-              onChange={(e) => setForm({ ...form, country: e.target.value })}
-            />
+            <label className="flex flex-col">
+              Country *
+              <input
+                className="input"
+                placeholder="Country"
+                required
+                value={form.country}
+                onChange={(e) => setForm({ ...form, country: e.target.value })}
+              />
+            </label>
 
-            {/* Conditional: Scholarship → University / Degree */}
-            {form.category === "SCHOLARSHIP" && (
+            {/* Scholarship-specific fields */}
+            {isScholarship && (
               <>
-                <input
-                  className="input"
-                  placeholder="University (Optional)"
-                  onChange={(e) => setForm({ ...form, university: e.target.value })}
-                />
-                <input
-                  className="input"
-                  placeholder="Degree (Bachelors / Masters / PhD)"
-                  onChange={(e) => setForm({ ...form, degree: e.target.value })}
-                />
+                <label className="flex flex-col">
+                  University
+                  <input
+                    className="input"
+                    placeholder="University Name"
+                    value={form.university}
+                    onChange={(e) => setForm({ ...form, university: e.target.value })}
+                  />
+                </label>
+
+                <label className="flex flex-col">
+                  Degree
+                  <input
+                    className="input"
+                    placeholder="BSc, MSc, PhD..."
+                    value={form.degree}
+                    onChange={(e) => setForm({ ...form, degree: e.target.value })}
+                  />
+                </label>
               </>
             )}
 
-            {/* Conditional: Other categories → Organization */}
-            {form.category !== "SCHOLARSHIP" && (
-              <input
-                className="input"
-                placeholder="Organization (Optional)"
-                onChange={(e) => setForm({ ...form, organization: e.target.value })}
-              />
+            {/* Other categories */}
+            {!isScholarship && (
+              <label className="flex flex-col">
+                Organization
+                <input
+                  className="input"
+                  placeholder="Organization Name"
+                  value={form.organization}
+                  onChange={(e) => setForm({ ...form, organization: e.target.value })}
+                />
+              </label>
             )}
 
-            <select
-              className="input"
-              onChange={(e) => setForm({ ...form, fundingType: e.target.value })}
-            >
-              <option value="FULLY_FUNDED">Fully Funded</option>
-              <option value="PARTIALLY_FUNDED">Partially Funded</option>
-              <option value="TUITION_ONLY">Tuition Only</option>
-              <option value="SELF_FUNDED">Self Funded</option>
-            </select>
+            {/* Funding */}
+            {showFunding && (
+              <label className="flex flex-col">
+                Funding Type
+                <select
+                  className="input"
+                  value={form.fundingType}
+                  onChange={(e) => setForm({ ...form, fundingType: e.target.value })}
+                >
+                  <option value="">Select Funding Type</option>
+                  <option value="FULLY_FUNDED">Fully Funded</option>
+                  <option value="PARTIALLY_FUNDED">Partially Funded</option>
+                  <option value="TUITION_ONLY">Tuition Only</option>
+                  <option value="SELF_FUNDED">Self Funded</option>
+                </select>
+              </label>
+            )}
 
-            <input
-              type="date"
-              className="input"
-              onChange={(e) => setForm({ ...form, deadline: e.target.value })}
-            />
+            {/* Grant Amount */}
+            {isGrant && (
+              <label className="flex flex-col">
+                Amount
+                <input
+                  className="input"
+                  placeholder="Grant Amount ($5000)"
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                />
+              </label>
+            )}
+
+            {/* Job Salary */}
+            {showSalary && (
+              <label className="flex flex-col">
+                Salary
+                <input
+                  className="input"
+                  placeholder="Salary ($60,000/year)"
+                  value={form.salary}
+                  onChange={(e) => setForm({ ...form, salary: e.target.value })}
+                />
+              </label>
+            )}
+
+            {/* Duration */}
+            {showDuration && (
+              <label className="flex flex-col">
+                Duration
+                <input
+                  className="input"
+                  placeholder="3 months, 6 months..."
+                  value={form.duration}
+                  onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                />
+              </label>
+            )}
+
+            {/* Deadline */}
+            <label className="flex flex-col">
+              Deadline
+              <input
+                type="date"
+                className="input"
+                value={form.deadline}
+                onChange={(e) => setForm({ ...form, deadline: e.target.value })}
+              />
+            </label>
           </div>
         </div>
 
         {/* OVERVIEW */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Overview</h2>
+        <label className="flex flex-col">
+          Overview
           <textarea
-            rows="4"
             className="textarea"
-            placeholder="Short overview"
+            placeholder="Brief description of the opportunity"
+            value={form.overview}
             onChange={(e) => setForm({ ...form, overview: e.target.value })}
           />
-        </div>
+        </label>
 
         {/* ELIGIBILITY */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Eligibility</h2>
+        <label className="flex flex-col">
+          Eligibility
           <textarea
-            rows="4"
             className="textarea"
-            placeholder="Eligibility requirements (comma separated)"
+            placeholder="Eligibility criteria, one per line"
+            value={form.eligibility}
             onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
           />
-          <input
-            className="input mt-4"
-            placeholder="Eligible Countries (Nigeria, Ghana...)"
+        </label>
+
+        {/* Eligible Countries */}
+        <label className="flex flex-col">
+          Eligible Countries
+          <textarea
+            className="textarea"
+            placeholder="Comma separated countries (e.g., Nigeria, Ghana)"
+            value={form.eligibleCountries}
             onChange={(e) => setForm({ ...form, eligibleCountries: e.target.value })}
           />
-        </div>
+        </label>
 
         {/* BENEFITS */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Benefits</h2>
+        <label className="flex flex-col">
+          Benefits
           <textarea
             className="textarea"
-            placeholder="Benefits (comma separated)"
+            placeholder="Benefits, one per line"
+            value={form.benefits}
             onChange={(e) => setForm({ ...form, benefits: e.target.value })}
           />
-        </div>
+        </label>
 
         {/* REQUIREMENTS */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Requirements</h2>
+        <label className="flex flex-col">
+          Requirements
           <textarea
             className="textarea"
-            placeholder="CV, Transcript, etc."
+            placeholder="Requirements, one per line"
+            value={form.requirements}
             onChange={(e) => setForm({ ...form, requirements: e.target.value })}
           />
-        </div>
+        </label>
 
         {/* HOW TO APPLY */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">How To Apply</h2>
+        <label className="flex flex-col">
+          How To Apply
           <textarea
-            rows="4"
             className="textarea"
-            placeholder="Explain the application process"
+            placeholder="Instructions on how to apply"
+            value={form.howToApply}
             onChange={(e) => setForm({ ...form, howToApply: e.target.value })}
           />
-        </div>
+        </label>
 
         {/* EXTRA DETAILS */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Extra Details</h2>
+        <label className="flex flex-col">
+          Extra Details
           <textarea
-            rows="4"
             className="textarea"
-            placeholder="Any extra information for this opportunity"
+            placeholder="Additional information"
+            value={form.extraDetails}
             onChange={(e) => setForm({ ...form, extraDetails: e.target.value })}
           />
-        </div>
+        </label>
 
         {/* OFFICIAL LINK */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Official Link</h2>
+        <label className="flex flex-col">
+          Official Link
           <input
             className="input"
-            placeholder="Official link"
+            placeholder="https://official-link.com"
+            value={form.officialLink}
             onChange={(e) => setForm({ ...form, officialLink: e.target.value })}
           />
-        </div>
+        </label>
 
         {/* IMAGE */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Image</h2>
-          <input
-            type="file"
-            accept="image/*"
-            className="input"
-            onChange={(e) => setImageFile(e.target.files[0])}
+        <label className="flex flex-col">
+  Image Upload
+  <div
+    className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition relative"
+  >
+    {imageFile ? (
+      <img
+        src={URL.createObjectURL(imageFile)}
+        alt="Preview"
+        className="max-h-40 object-contain rounded-md"
+      />
+    ) : (
+      <>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-12 w-12 text-gray-400 mb-3"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 15a4 4 0 014-4h10a4 4 0 014 4v4H3v-4zM16 5l-4-4-4 4m4-4v16"
           />
-          {imageFile && (
-            <img
-              src={URL.createObjectURL(imageFile)}
-              alt="preview"
-              className="mt-4 rounded-xl shadow w-full max-h-64 object-cover"
-            />
-          )}
-        </div>
+        </svg>
+        <p className="text-gray-500">Click or drag to upload an image</p>
+      </>
+    )}
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => setImageFile(e.target.files[0])}
+      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+    />
+  </div>
+</label>
 
-        {/* FEATURED / TRENDING / STATUS */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="flex flex-col">
-            <label className="font-semibold text-gray-900">Featured</label>
+        {/* FLAGS */}
+        <div className="flex gap-6">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              checked={form.featured}
               onChange={(e) => setForm({ ...form, featured: e.target.checked })}
             />
-          </div>
-          <div className="flex flex-col">
-            <label className="font-semibold text-gray-900">Trending</label>
+            Featured
+          </label>
+
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              checked={form.trending}
               onChange={(e) => setForm({ ...form, trending: e.target.checked })}
             />
-          </div>
-          <div className="flex flex-col">
-            <label className="font-semibold text-gray-900">Status</label>
-            <select
-              className="input w-full"
-              onChange={(e) => setForm({ ...form, status: e.target.value })}
-            >
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Publish</option>
-            </select>
-          </div>
+            Trending
+          </label>
         </div>
 
-        {/* SUBMIT */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-gradient-to-r from-blue-950 to-teal-500 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:scale-105 transition"
+        {/* STATUS */}
+        <label className="flex flex-col">
+          Status
+          <select
+            className="input"
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
           >
-            Create Opportunity
-          </button>
-        </div>
+            <option value="DRAFT">Draft</option>
+            <option value="PUBLISHED">Publish</option>
+          </select>
+        </label>
+
+        {/* SUBMIT */}
+        <button className="bg-gradient-to-r from-blue-900 to-teal-500 text-white px-6 py-3 rounded-xl">
+          Create Opportunity
+        </button>
       </form>
     </div>
   );
