@@ -14,6 +14,16 @@ const nextConfig = {
       },
     ],
   },
+
+  async redirects() {
+    return [
+      {
+        source: "/sitemap.xml",
+        destination: "/api/sitemap",  // Points to your API route that serves the sitemap
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
