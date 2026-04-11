@@ -1,9 +1,10 @@
+// /app/api/sitemap/route.js
+
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic"; // ✅ This Fixes It
-
-export default async function sitemap() {
+// Named export for GET request
+export async function GET() {
   const baseUrl = "https://scholarshipground.com";
 
   let scholarships = [];
@@ -45,9 +46,9 @@ export default async function sitemap() {
     ${xmlUrls}
   </urlset>`;
 
-  return NextResponse.json(xml, {
+  return new NextResponse(xml, {
     headers: {
-      "Content-Type": "application/xml",
+      "Content-Type": "application/xml",  // Ensure XML is returned
     },
   });
 }

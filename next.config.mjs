@@ -1,3 +1,5 @@
+// next.config.js
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -15,12 +17,11 @@ const nextConfig = {
     ],
   },
 
-  async redirects() {
+  async rewrites() {
     return [
       {
         source: "/sitemap.xml",
-        destination: "/api/sitemap",  // Points to your API route that serves the sitemap
-        permanent: true,
+        destination: "/api/sitemap", // Points to your API route that serves the sitemap
       },
     ];
   },
