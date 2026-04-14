@@ -2,8 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import prisma from "@/lib/prisma";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 /* ================= METADATA ================= */
 export async function generateMetadata({ params }) {
@@ -28,9 +26,11 @@ export async function generateMetadata({ params }) {
   return {
     title: `${item.title} | ScholarshipGround`,
     description: `${item.title} in ${item.country}. ${deadlineText}.`,
+
     alternates: {
       canonical: canonicalUrl,
     },
+
     openGraph: {
       title: item.title,
       description: `${item.title} in ${item.country}`,
@@ -61,6 +61,7 @@ function getStatus(deadline) {
   if (today > endDate) return "Closed";
 
   const diffDays = (endDate - today) / (1000 * 60 * 60 * 24);
+
   if (diffDays <= 30) return "Ongoing";
 
   return "Open";
@@ -95,9 +96,11 @@ function getCategoryLabel(category) {
     TRAINING: "Training",
     JOB: "Job",
   };
+
   return map[category] || category;
 }
 
+/* ✅ CLEAN TITLE FIX */
 function cleanTitle(title) {
   return title
     .replace(/\(.*?\)/g, "")
@@ -123,6 +126,7 @@ export default async function DetailPage({ params }) {
 
   const status = getStatus(item.deadline);
   const statusColor = getStatusColor(status);
+
   const today = new Date();
 
   const [related, trending, popular] = await Promise.all([
@@ -134,7 +138,10 @@ export default async function DetailPage({ params }) {
       },
       take: 6,
       orderBy: {
-        deadline: { sort: "asc", nulls: "last" },
+        deadline: {
+          sort: "asc",
+          nulls: "last",
+        },
       },
     }),
 
@@ -147,7 +154,10 @@ export default async function DetailPage({ params }) {
       },
       take: 4,
       orderBy: {
-        deadline: { sort: "asc", nulls: "last" },
+        deadline: {
+          sort: "asc",
+          nulls: "last",
+        },
       },
     }),
 
@@ -160,7 +170,10 @@ export default async function DetailPage({ params }) {
       },
       take: 4,
       orderBy: {
-        deadline: { sort: "asc", nulls: "last" },
+        deadline: {
+          sort: "asc",
+          nulls: "last",
+        },
       },
     }),
   ]);
@@ -171,7 +184,7 @@ export default async function DetailPage({ params }) {
 
       <div className="max-w-7xl mx-auto px-6 mt-40 grid lg:grid-cols-3 gap-10">
 
-        {/* MAIN */}
+        {/* ================= MAIN ================= */}
         <main className="lg:col-span-2 space-y-8">
 
           {/* HERO */}
@@ -188,6 +201,8 @@ export default async function DetailPage({ params }) {
             )}
 
             <div className="p-6">
+
+              {/* BADGES */}
               <div className="flex flex-wrap gap-2 mb-3">
                 <span className={`text-xs px-3 py-1 rounded-full ${statusColor}`}>
                   {status}
@@ -198,27 +213,61 @@ export default async function DetailPage({ params }) {
                 </span>
               </div>
 
+              {/* TITLE */}
               <h1 className="text-3xl md:text-4xl font-bold">
                 {item.title}
               </h1>
 
+              {/* META */}
               <p className="text-gray-500 mt-2 text-sm">
-                {item.country} • {getCategoryLabel(item.category)}
+                {item.country} •{" "}
+                {item.category === "SCHOLARSHIP"
+                  ? item.degree || "All Levels"
+                  : item.category === "INTERNSHIP"
+                  ? item.duration || getCategoryLabel(item.category)
+                  : getCategoryLabel(item.category)}
               </p>
 
+              {/* KEY INFO */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 text-sm">
+
                 <Info label="Deadline" value={formatDeadline(item.deadline)} />
 
                 {["SCHOLARSHIP", "GRANT", "FELLOWSHIP"].includes(item.category) && (
-                  <Info label="Funding" value={item.fundingType || "N/A"} />
+                  <Info
+                    label="Funding"
+                    value={item.fundingType?.replace("_", " ") || "N/A"}
+                  />
+                )}
+
+                {item.category === "SCHOLARSHIP" && (
+                  <>
+                    <Info label="University" value={item.university || "Various"} />
+                    <Info label="Degree" value={item.degree || "All Levels"} />
+                  </>
+                )}
+
+                {["INTERNSHIP", "JOB", "TRAINING", "ENTREPRENEURSHIP"].includes(
+                  item.category
+                ) && (
+                  <Info label="Organization" value={item.organization || "Various"} />
+                )}
+
+                {item.category === "INTERNSHIP" && item.duration && (
+                  <Info label="Duration" value={item.duration} />
+                )}
+
+                {item.category === "JOB" && item.salary && (
+                  <Info label="Salary" value={item.salary} />
                 )}
               </div>
 
+              {/* APPLY */}
               {item.officialLink && (
                 <a
                   href={item.officialLink}
                   target="_blank"
-                  className="inline-block mt-6 bg-gradient-to-r from-blue-950 to-teal-500 px-6 py-3 text-white font-semibold rounded-lg"
+                  className="inline-block mt-6 bg-gradient-to-r from-blue-950 to-teal-500 px-6 py-3 text-white font-semibold rounded-lg shadow hover:scale-105 transition"
                 >
                   Apply Now →
                 </a>
@@ -229,26 +278,43 @@ export default async function DetailPage({ params }) {
           {/* CONTENT */}
           <Section title="Overview" content={item.overview} />
 
+         
+
           <ListSection title="Eligibility" data={item.eligibility} />
-          <ListSection title="Eligible Countries" data={item.eligibleCountries} />
+                           <ListSection title="Eligible Countries" data={item.eligibleCountries} />
+
           <ListSection title="Benefits" data={item.benefits} />
           <ListSection title="Requirements" data={item.requirements} />
-
-          {/* HOW TO APPLY */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm">
+           <div className="bg-white p-6 rounded-2xl shadow-sm">
             <h2 className="text-xl font-semibold mb-3">
               How to Apply for {cleanTitle(item.title)}
             </h2>
 
-            <div className="prose max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {item.howToApply || ""}
-              </ReactMarkdown>
-            </div>
+            {item.howToApply ? (
+              <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+                {item.howToApply}
+              </p>
+            ) : (
+              <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+                <li>Click the Apply Now button above</li>
+                <li>Check eligibility requirements carefully</li>
+                <li>Prepare required documents</li>
+                <li>Write a strong motivation letter</li>
+                <li>Submit before deadline</li>
+              </ol>
+            )}
           </div>
 
-          {/* EXTRA DETAILS */}
           <Section title="Important Notes" content={item.extraDetails} />
+          {item.officialLink && (
+                <a
+                  href={item.officialLink}
+                  target="_blank"
+                  className="inline-block mt-6 bg-gradient-to-r from-blue-950 to-teal-500 px-6 py-3 text-white font-semibold rounded-lg shadow hover:scale-105 transition"
+                >
+                  Click here to Apply →
+                </a>
+              )}
 
           {trending.length > 0 && (
             <CardList title="🔥 Trending Opportunities" data={trending} />
@@ -257,38 +323,59 @@ export default async function DetailPage({ params }) {
           {popular.length > 0 && (
             <CardList title="⭐ Popular Opportunities" data={popular} />
           )}
+
         </main>
 
         {/* SIDEBAR */}
         <aside className="space-y-6 lg:sticky lg:top-32 h-fit">
+
+          {item.officialLink && (
+            <div className="bg-gradient-to-r from-blue-950 to-teal-500 p-6 rounded-2xl text-white">
+              <h3 className="font-bold text-lg">🚀 Apply Now</h3>
+              <p className="text-sm mt-2">
+                {item.deadline
+                  ? "Don’t miss this opportunity before deadline."
+                  : "Apply anytime — no fixed deadline."}
+              </p>
+              <a
+                href={item.officialLink}
+                target="_blank"
+                className="block text-center mt-4 bg-white text-blue-900 font-semibold py-2 rounded-lg"
+              >
+                Apply Now
+              </a>
+            </div>
+          )}
+
           <div className="bg-white p-6 rounded-2xl shadow-sm">
             <h3 className="font-semibold mb-3">More in {item.country}</h3>
             <div className="space-y-3">
               {related.map((r) => (
-                <Link key={r.id} href={`/scholarships/${r.slug}`}>
+                <Link
+                  key={r.id}
+                  href={`/scholarships/${r.slug}`}
+                  className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                >
                   {r.title}
                 </Link>
               ))}
             </div>
           </div>
+
         </aside>
       </div>
     </div>
   );
 }
 
-/* COMPONENTS */
+/* ================= COMPONENTS ================= */
 function Section({ title, content }) {
   if (!content) return null;
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm">
       <h2 className="text-xl font-semibold mb-3">{title}</h2>
-      <div className="prose max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {content}
-        </ReactMarkdown>
-      </div>
+      <p className="text-gray-700 whitespace-pre-line">{content}</p>
     </div>
   );
 }
@@ -312,10 +399,13 @@ function CardList({ title, data }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm">
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
-      <ul className="space-y-2">
+      <ul className="list-disc pl-5 space-y-2">
         {data.map((item) => (
           <li key={item.id}>
-            <Link href={`/scholarships/${item.slug}`}>
+            <Link
+              href={`/scholarships/${item.slug}`}
+              className="text-blue-700 hover:underline"
+            >
               {item.title}
             </Link>
           </li>
