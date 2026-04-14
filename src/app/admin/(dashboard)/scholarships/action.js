@@ -223,7 +223,18 @@ export async function createScholarship(formData) {
     });
 
     imageUrl = uploadResult.secure_url;
+   
   }
+    // ✅ FIXED DEADLINE LOGIC
+  const noDeadline = formData.get("noDeadline") === "true";
+  const deadlineValue = formData.get("deadline");
+
+  const deadline =
+    noDeadline
+      ? null
+      : deadlineValue
+      ? new Date(deadlineValue)
+      : null;
 
   await prisma.scholarship.create({
     data: {
@@ -239,10 +250,8 @@ export async function createScholarship(formData) {
       degree: formData.get("degree") || null,
 
       fundingType: formData.get("fundingType") || null,
+       deadline,
 
-      deadline: formData.get("deadline")
-        ? new Date(formData.get("deadline"))
-        : null,
 
       overview: formData.get("overview") || null,
 

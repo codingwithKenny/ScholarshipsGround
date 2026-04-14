@@ -6,6 +6,47 @@ import prisma from "@/lib/prisma";
 import WhatsAppCommunity from "../components/whatsapp";
 import Footer from "../components/Footer";
 
+export async function generateMetadata({ searchParams }) {
+  const baseUrl = "https://www.scholarshipground.com/scholarships";
+
+  // ✅ FIX: unwrap searchParams
+  const params = await searchParams;
+
+  const page = params?.page;
+  const search = params?.search;
+  const country = params?.country;
+  const degree = params?.degree;
+  const category = params?.category;
+
+  // ✅ Detect filters (for SEO control)
+  const hasFilters = page || search || country || degree || category;
+
+  return {
+    title: "Scholarships, Internships & Grants | ScholarshipGround",
+    description:
+      "Find verified scholarships, internships, fellowships, and global opportunities.",
+
+    alternates: {
+      canonical: baseUrl,
+    },
+
+    // ✅ PRO SEO (prevents duplicate indexing of filters)
+    robots: {
+      index: !hasFilters,
+      follow: true,
+    },
+
+    openGraph: {
+      title: "Scholarships | ScholarshipGround",
+      description:
+        "Find verified global scholarships and opportunities.",
+      url: baseUrl,
+      siteName: "ScholarshipGround",
+      type: "website",
+    },
+  };
+}
+
 function getStatus(deadline) {
   const today = new Date();
   const endDate = new Date(deadline);
@@ -66,6 +107,21 @@ export default async function ScholarshipsPage({ searchParams }) {
     <div className="min-h-screen bg-gray-50 text-gray-800">
       <Navbar />
 
+      {/* ✅ STRUCTURED DATA (SEO BOOST) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Scholarships",
+            url: "https://www.scholarshipground.com/scholarships",
+            description:
+              "Find scholarships, internships, and global opportunities.",
+          }),
+        }}
+      />
+
       <section className="mt-32 max-w-7xl mx-auto px-6">
         {/* HERO */}
         <div className="text-center mb-14">
@@ -107,13 +163,16 @@ export default async function ScholarshipsPage({ searchParams }) {
             <option value="PhD">PhD</option>
           </select>
 
+          {/* ✅ FIXED CATEGORY VALUES */}
           <select name="category" defaultValue={category} className="p-3 border border-gray-200 rounded-lg">
             <option value="">📂 All Categories</option>
             <option value="SCHOLARSHIP">Scholarship</option>
             <option value="INTERNSHIP">Internship</option>
-            <option value="PRENEURSHIP">Preneurship</option>
+            <option value="FELLOWSHIP">Fellowship</option>
             <option value="GRANT">Grant</option>
-            <option value="OPPORTUNITY">Opportunity</option>
+            <option value="ENTREPRENEURSHIP">Entrepreneurship</option>
+            <option value="TRAINING">Training</option>
+            <option value="JOB">Job</option>
           </select>
 
           <button className="bg-gradient-to-r from-blue-950 to-teal-500 text-white rounded-lg px-4 py-2 font-semibold hover:opacity-90 transition">
@@ -199,12 +258,6 @@ export default async function ScholarshipsPage({ searchParams }) {
                             {sch.overview}
                           </p>
                         )}
-
-                        {/* {sch.extraDetails && (
-                          <p className="text-sm text-gray-500 mt-2 italic line-clamp-3">
-                            {sch.extraDetails}
-                          </p>
-                        )} */}
                       </div>
 
                       <div className="mt-5">
@@ -241,8 +294,6 @@ export default async function ScholarshipsPage({ searchParams }) {
 
           {/* RIGHT SIDEBAR */}
           <aside className="space-y-6 sticky top-24">
-
-            {/* ✅ FIXED: WhatsApp now correctly inside sidebar */}
             <WhatsAppCommunity />
 
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
@@ -266,8 +317,6 @@ export default async function ScholarshipsPage({ searchParams }) {
           </aside>
         </div>
       </section>
-          
-
     </div>
   );
 }

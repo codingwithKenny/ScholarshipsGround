@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateScholarship } from "../../action";
+import RichMarkdownEditor from "@/app/components/RichMarkdownEditor";
 
 export default function EditForm({ scholarship }) {
   const router = useRouter();
@@ -184,8 +185,7 @@ export default function EditForm({ scholarship }) {
         <div className="space-y-4">
           <div>
             <label className="label">Overview</label>
-            <textarea
-              className="textarea-modern"
+            <RichMarkdownEditor
               rows={4}
               value={form.overview || ""}
               onChange={(e) => setForm({ ...form, overview: e.target.value })}
@@ -194,8 +194,7 @@ export default function EditForm({ scholarship }) {
 
           <div>
             <label className="label">Extra Details</label>
-            <textarea
-              className="textarea-modern"
+            <RichMarkdownEditor
               rows={3}
               value={form.extraDetails || ""}
               onChange={(e) => setForm({ ...form, extraDetails: e.target.value })}
@@ -243,8 +242,7 @@ export default function EditForm({ scholarship }) {
 
           <div>
             <label className="label">How To Apply</label>
-            <textarea
-              className="textarea-modern"
+            <RichMarkdownEditor
               rows={3}
               value={form.howToApply || ""}
               onChange={(e) => setForm({ ...form, howToApply: e.target.value })}

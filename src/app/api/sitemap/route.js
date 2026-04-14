@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 // Named export for GET request
 export async function GET() {
-  const baseUrl = "https://scholarshipground.com";
+  const baseUrl = "https://www.scholarshipground.com";
 
   let scholarships = [];
 

@@ -19,23 +19,25 @@ export const metadata = {
   },
   description: "Find fully funded scholarships worldwide",
   icons: {
-    icon: "/favicon.ico.png", // or "/favicon.png"
+    icon: "/og-image2.png", // or "/favicon.png"
   },
 };
 
 export default function RootLayout({ children }) {
+    const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+
   return (
     <html lang="en">
       <head>
         {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8PF2SP88QE"></script>
+        <script async  src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-8PF2SP88QE'); // Your Google Analytics 4 Measurement ID
+              gtag('config', '${GA_ID}'); // Your Google Analytics 4 Measurement ID
             `,
           }}
         ></script>

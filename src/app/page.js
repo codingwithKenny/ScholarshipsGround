@@ -1,3 +1,39 @@
+export const metadata = {
+  title: "ScholarshipGround | Scholarships, Internships & Global Opportunities",
+  description:
+    "Discover verified scholarships, internships, jobs, and global opportunities for undergraduate, masters, and PhD students worldwide.",
+
+  alternates: {
+    canonical: "https://www.scholarshipground.com/",
+  },
+
+  openGraph: {
+    title: "ScholarshipGround | Global Scholarships & Opportunities",
+    description:
+      "Find verified scholarships, internships, jobs, and study opportunities worldwide for students at all levels.",
+    url: "https://www.scholarshipground.com/",
+    siteName: "ScholarshipGround",
+    type: "website",
+    images: [
+      {
+        url: "https://www.scholarshipground.com/og-image.png", // 👉 replace with your real OG image
+        width: 1200,
+        height: 630,
+        alt: "ScholarshipGround",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "ScholarshipGround",
+    description:
+      "Discover global scholarships, internships, jobs and opportunities.",
+    images: ["https://www.scholarshipground.com/og-image.png"],
+  },
+};
+
+
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import Navbar from "./components/Navbar";

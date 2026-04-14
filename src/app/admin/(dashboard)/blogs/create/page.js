@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createBlog } from "../blogaction";
+import RichMarkdownEditor from "@/app/components/RichMarkdownEditor";
 
 export default function CreateBlog() {
   const router = useRouter();
@@ -89,9 +90,8 @@ export default function CreateBlog() {
             Blog Content
           </h2>
 
-          <textarea
+          <RichMarkdownEditor
             rows="8"
-            className="textarea"
             placeholder="Write your blog content..."
             required
             onChange={(e) =>

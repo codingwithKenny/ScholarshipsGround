@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateBlog } from "../../blogaction";
+import RichMarkdownEditor from "@/app/components/RichMarkdownEditor";
 
 export default function EditBlogForm({ blog }) {
   const router = useRouter();
@@ -86,9 +87,8 @@ export default function EditBlogForm({ blog }) {
             Blog Content
           </h2>
 
-          <textarea
+          <RichMarkdownEditor
             rows="8"
-            className="textarea"
             value={form.content}
             onChange={(e) =>
               setForm({ ...form, content: e.target.value })

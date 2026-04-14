@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createScholarship } from "../action";
+import RichMarkdownEditor from "@/app/components/RichMarkdownEditor";
 
 export default function CreateOpportunity() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function CreateOpportunity() {
     status: "DRAFT",
     featured: false,
     trending: false,
+    noDeadline: false,
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -51,6 +53,7 @@ export default function CreateOpportunity() {
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
     if (imageFile) formData.append("image", imageFile);
+       formData.set("noDeadline", form.noDeadline);
 
     await createScholarship(formData);
     router.push("/admin/scholarships");
@@ -209,27 +212,48 @@ export default function CreateOpportunity() {
             )}
 
             {/* Deadline */}
-            <label className="flex flex-col">
-              Deadline
-              <input
-                type="date"
-                className="input"
-                value={form.deadline}
-                onChange={(e) => setForm({ ...form, deadline: e.target.value })}
-              />
-            </label>
+           <label className="flex flex-col">
+  Deadline
+
+  <input
+    type="date"
+    className="input"
+    value={form.deadline}
+    disabled={form.noDeadline}
+    onChange={(e) =>
+      setForm({ ...form, deadline: e.target.value })
+    }
+  />
+
+  <label className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+   <input
+  type="checkbox"
+  checked={form.noDeadline}
+  onChange={(e) =>
+    setForm((prev) => ({
+      ...prev,
+      noDeadline: e.target.checked,
+      deadline: e.target.checked ? "" : prev.deadline,
+    }))
+  }
+/>
+    No specific deadline (Rolling / Always open)
+  </label>
+
+  <span className="text-xs text-gray-400 mt-1">
+    Select a date OR mark as ongoing opportunity
+  </span>
+</label>
           </div>
         </div>
 
         {/* OVERVIEW */}
         <label className="flex flex-col">
           Overview
-          <textarea
-            className="textarea"
-            placeholder="Brief description of the opportunity"
-            value={form.overview}
-            onChange={(e) => setForm({ ...form, overview: e.target.value })}
-          />
+          <RichMarkdownEditor
+  value={form.overview}
+  onChange={(value) => setForm({ ...form, overview: value || "" })}
+/>
         </label>
 
         {/* ELIGIBILITY */}
@@ -279,23 +303,21 @@ export default function CreateOpportunity() {
         {/* HOW TO APPLY */}
         <label className="flex flex-col">
           How To Apply
-          <textarea
-            className="textarea"
-            placeholder="Instructions on how to apply"
-            value={form.howToApply}
-            onChange={(e) => setForm({ ...form, howToApply: e.target.value })}
-          />
+          <RichMarkdownEditor
+  value={form.howToApply}
+  onChange={(value) => setForm({ ...form, howToApply: value || "" })}
+/>
         </label>
 
         {/* EXTRA DETAILS */}
         <label className="flex flex-col">
           Extra Details
-          <textarea
-            className="textarea"
-            placeholder="Additional information"
-            value={form.extraDetails}
-            onChange={(e) => setForm({ ...form, extraDetails: e.target.value })}
-          />
+          <RichMarkdownEditor
+  value={form.extraDetails}
+  onChange={(value) =>
+    setForm({ ...form, extraDetails: value || "" })
+  }
+/>
         </label>
 
         {/* OFFICIAL LINK */}

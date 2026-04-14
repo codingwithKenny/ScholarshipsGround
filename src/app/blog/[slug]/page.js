@@ -2,11 +2,54 @@ import Navbar from "@/app/components/Navbar";
 import prisma from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 
+/* ================= SEO METADATA ================= */
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+
+  const blog = await prisma.blog.findUnique({
+    where: { slug },
+  });
+
+  if (!blog) {
+    return {
+      title: "Blog Not Found | ScholarshipGround",
+    };
+  }
+
+  const canonicalUrl = `https://www.scholarshipground.com/blog/${slug}`;
+
+  return {
+    title: `${blog.title} | ScholarshipGround`,
+    description: blog.excerpt || blog.title,
+
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    openGraph: {
+      title: blog.title,
+      description: blog.excerpt,
+      url: canonicalUrl,
+      images: blog.image ? [blog.image] : [],
+      type: "article",
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: blog.title,
+      description: blog.excerpt,
+      images: blog.image ? [blog.image] : [],
+    },
+  };
+}
+
+/* ================= PAGE ================= */
 export default async function BlogDetail({ params }) {
   const { slug } = await params;
 
-  const [blog, latestScholarships, degrees] = await Promise.all([
+  const [blog, latestScholarships] = await Promise.all([
     prisma.blog.findUnique({
       where: { slug },
     }),
@@ -15,12 +58,6 @@ export default async function BlogDetail({ params }) {
       where: { status: "PUBLISHED" },
       orderBy: { createdAt: "desc" },
       take: 5,
-    }),
-
-    prisma.scholarship.findMany({
-      where: { status: "PUBLISHED" },
-      select: { degree: true },
-      distinct: ["degree"],
     }),
   ]);
 
@@ -31,6 +68,8 @@ export default async function BlogDetail({ params }) {
       </div>
     );
   }
+
+  const degrees = ["BSc", "MSc", "PhD"];
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -75,9 +114,46 @@ export default async function BlogDetail({ params }) {
           </p>
         )}
 
-        {/* CONTENT */}
-        <div className="prose prose-lg max-w-none prose-gray whitespace-pre-line">
-          {blog.content}
+        {/* ================= TABLE OF CONTENT (OPTIONAL BOOST) ================= */}
+        {/* <div className="mb-10 p-4 bg-gray-100 rounded-lg">
+          <h2 className="font-semibold mb-2">📌 In this article</h2>
+          <ul className="text-sm space-y-1">
+            <li>Applying for scholarships early</li>
+            <li>Developing remote skills</li>
+            <li>Planning living expenses</li>
+            <li>Meeting requirements</li>
+          </ul>
+        </div> */}
+
+        {/* ================= CONTENT (MARKDOWN) ================= */}
+        <div className="prose prose-lg max-w-none prose-gray">
+          <ReactMarkdown
+            components={{
+              h2: ({ node, ...props }) => (
+                <h2 className="text-2xl font-bold mt-10 mb-4" {...props} />
+              ),
+              h3: ({ node, ...props }) => (
+                <h3 className="text-xl font-semibold mt-8 mb-3" {...props} />
+              ),
+              p: ({ node, ...props }) => (
+                <p className="mb-4 leading-relaxed" {...props} />
+              ),
+              ul: ({ node, ...props }) => (
+                <ul className="list-disc pl-5 mb-4" {...props} />
+              ),
+              li: ({ node, ...props }) => (
+                <li className="mb-2" {...props} />
+              ),
+              a: ({ node, ...props }) => (
+                <a className="text-blue-600 hover:underline" {...props} />
+              ),
+              strong: ({ node, ...props }) => (
+                <strong className="font-semibold" {...props} />
+              ),
+            }}
+          >
+            {blog.content}
+          </ReactMarkdown>
         </div>
 
         {/* ================= CTA ================= */}
@@ -86,7 +162,7 @@ export default async function BlogDetail({ params }) {
             🚀 Want daily scholarship updates?
           </h2>
           <p className="text-sm mb-4">
-            Follow us on X and never miss new opportunities.
+            Follow us and never miss new opportunities.
           </p>
 
           <a
@@ -122,18 +198,23 @@ export default async function BlogDetail({ params }) {
 
         {/* ================= BROWSE BY DEGREE ================= */}
         <section className="mt-16">
-          <h2 className="text-xl font-bold mb-4">
-            🎯 Browse by Degree
-          </h2>
+          <h2 className="text-xl font-bold mb-4">🎯 Browse by Degree</h2>
 
           <div className="flex flex-wrap gap-3">
-            {degrees.map((d, i) => (
+            <Link
+              href="/scholarships"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition"
+            >
+              All
+            </Link>
+
+            {degrees.map((degree) => (
               <Link
-                key={i}
-                href={`/scholarships?degree=${d.degree}`}
+                key={degree}
+                href={`/scholarships?degree=${degree}`}
                 className="px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition"
               >
-                {d.degree}
+                {degree}
               </Link>
             ))}
           </div>

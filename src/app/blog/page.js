@@ -3,7 +3,31 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "../components/Navbar";
 
-// ✅ helpers
+/* ================= SEO ================= */
+export async function generateMetadata() {
+  return {
+    title: "Blog | ScholarshipGround",
+    description:
+      "Insights, guides, and scholarship tips to help you succeed",
+
+    alternates: {
+      canonical: "https://www.scholarshipground.com/blog",
+    },
+  };
+}
+
+/* ================= CATEGORY LABELS ================= */
+const CATEGORY_LABELS = {
+  SCHOLARSHIP: "Scholarship",
+  INTERNSHIP: "Internship",
+  FELLOWSHIP: "Fellowship",
+  GRANT: "Grant",
+  ENTREPRENEURSHIP: "Entrepreneurship",
+  TRAINING: "Training",
+  JOB: "Job",
+};
+
+/* ================= HELPERS ================= */
 function getReadTime(content) {
   const wordsPerMinute = 200;
   const wordCount = content?.split(" ").length || 0;
@@ -18,25 +42,26 @@ function formatDate(date) {
   });
 }
 
+/* ================= PAGE ================= */
 export default async function BlogPage() {
   const blogs = await prisma.blog.findMany({
     where: { published: true },
     orderBy: { createdAt: "desc" },
   });
 
-  // ✅ Featured logic (fixed)
-  const featuredPosts = blogs.filter((b) => b.featured);
-  const featured = featuredPosts[0] || blogs[0];
-
+  const featured = blogs.find((b) => b.featured) || blogs[0];
   const rest = blogs.filter((b) => b.id !== featured?.id);
-
-  // ✅ Dynamic categories
-  const categories = [
-    ...new Set(blogs.map((b) => b.category).filter(Boolean)),
-  ];
-
-  // ✅ Latest posts (sidebar)
   const latest = blogs.slice(0, 5);
+
+  /* ================= FETCH CATEGORIES FROM DB ================= */
+  const categoryRaw = await prisma.scholarship.findMany({
+    where: { status: "PUBLISHED" },
+    select: { category: true },
+  });
+
+  const categories = [
+    ...new Set(categoryRaw.map((c) => c.category).filter(Boolean)),
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -54,7 +79,7 @@ export default async function BlogPage() {
           </p>
         </div>
 
-        {/* FEATURED POST */}
+        {/* FEATURED */}
         {featured && (
           <Link href={`/blog/${featured.slug}`} className="block group">
             <div className="grid md:grid-cols-2 gap-8 items-center bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
@@ -66,7 +91,6 @@ export default async function BlogPage() {
                   fill
                   className="object-cover group-hover:scale-105 transition duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               </div>
 
               <div className="p-8">
@@ -86,10 +110,6 @@ export default async function BlogPage() {
                   {formatDate(featured.createdAt)} •{" "}
                   {getReadTime(featured.content)} min read
                 </p>
-
-                <p className="text-xs text-gray-500 mt-1">
-                  By {featured.author || "RK"}
-                </p>
               </div>
             </div>
           </Link>
@@ -100,67 +120,49 @@ export default async function BlogPage() {
 
           {/* BLOG LIST */}
           <div className="lg:col-span-3">
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-            {rest.length === 0 ? (
-              <div className="text-center py-20">
-                <p className="text-gray-500 text-lg">
-                  No blog posts yet
-                </p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {rest.map((blog) => (
+                <Link
+                  key={blog.id}
+                  href={`/blog/${blog.slug}`}
+                  className="bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition overflow-hidden group flex flex-col"
+                >
+                  <div className="relative w-full h-48">
+                    <Image
+                      src={blog.image || "/placeholder.jpg"}
+                      alt={blog.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition duration-500"
+                    />
+                  </div>
 
-                {rest.map((blog) => (
-                  <Link
-                    key={blog.id}
-                    href={`/blog/${blog.slug}`}
-                    className="bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition overflow-hidden group flex flex-col"
-                  >
+                  <div className="p-5 flex flex-col flex-1">
 
-                    {/* IMAGE */}
-                    <div className="relative w-full h-48">
-                      <Image
-                        src={blog.image || "/placeholder.jpg"}
-                        alt={blog.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition duration-500"
-                      />
-                    </div>
+                    <h2 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition">
+                      {blog.title}
+                    </h2>
 
-                    {/* CONTENT */}
-                    <div className="p-5 flex flex-col flex-1">
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-3">
+                      {blog.excerpt}
+                    </p>
 
-                      <h2 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition">
-                        {blog.title}
-                      </h2>
-
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                        {blog.excerpt}
+                    <div className="mt-auto pt-4">
+                      <p className="text-xs text-gray-400">
+                        {formatDate(blog.createdAt)} •{" "}
+                        {getReadTime(blog.content)} min read
                       </p>
 
-                      {/* FOOTER */}
-                      <div className="mt-auto pt-4">
-                        <p className="text-xs text-gray-400">
-                          {formatDate(blog.createdAt)} •{" "}
-                          {getReadTime(blog.content)} min read
-                        </p>
-
-                        <p className="text-xs text-gray-500">
-                          By {blog.author || "RK"}
-                        </p>
-
-                        <span className="text-sm font-semibold text-blue-600 group-hover:underline mt-2 inline-block">
-                          Read more →
-                        </span>
-                      </div>
-
+                      <span className="text-sm font-semibold text-blue-600 group-hover:underline mt-2 inline-block">
+                        Read more →
+                      </span>
                     </div>
-                  </Link>
-                ))}
 
-              </div>
-            )}
+                  </div>
+                </Link>
+              ))}
 
+            </div>
           </div>
 
           {/* SIDEBAR */}
@@ -177,7 +179,7 @@ export default async function BlogPage() {
               </p>
             </div>
 
-            {/* DYNAMIC CATEGORIES */}
+            {/* CATEGORIES (CLICKABLE + FIXED) */}
             <div className="bg-white border border-gray-200 rounded-xl p-6">
               <h2 className="text-lg font-bold mb-4">
                 Categories
@@ -186,11 +188,13 @@ export default async function BlogPage() {
               <ul className="space-y-2 text-sm">
                 {categories.length > 0 ? (
                   categories.map((cat) => (
-                    <li
-                      key={cat}
-                      className="hover:text-blue-700 cursor-pointer"
-                    >
-                      {cat}
+                    <li key={cat}>
+                      <Link
+                        href={`/scholarships?category=${cat}`}
+                        className="hover:text-blue-700 transition"
+                      >
+                        {CATEGORY_LABELS[cat] || cat}
+                      </Link>
                     </li>
                   ))
                 ) : (
@@ -199,7 +203,7 @@ export default async function BlogPage() {
               </ul>
             </div>
 
-            {/* LATEST POSTS */}
+            {/* LATEST */}
             <div className="bg-white border border-gray-200 rounded-xl p-6">
               <h2 className="text-lg font-bold mb-4">
                 Latest Posts
@@ -217,22 +221,6 @@ export default async function BlogPage() {
                   </li>
                 ))}
               </ul>
-            </div>
-
-            {/* CTA */}
-            <div className="bg-gradient-to-r from-blue-950 to-teal-500 text-white rounded-xl p-6 text-center">
-              <h3 className="font-bold text-lg mb-2">
-                Want Updates?
-              </h3>
-              <p className="text-sm mb-4">
-                Subscribe to get the latest scholarship alerts.
-              </p>
-
-              <Link href="/subscribe">
-                <button className="bg-white text-blue-900 px-4 py-2 rounded-full text-sm font-semibold">
-                  Subscribe
-                </button>
-              </Link>
             </div>
 
           </aside>

@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 export const dynamic = "force-dynamic"; // ✅ THIS FIXES IT
 
 export default async function sitemap() {
-  const baseUrl = "https://scholarshipground.com";
+  const baseUrl = "https://www.scholarshipground.com";
 
   let scholarships = [];
 
