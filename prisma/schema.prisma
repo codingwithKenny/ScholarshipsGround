@@ -33,6 +33,7 @@ enum OpportunityCategory {
   ENTREPRENEURSHIP
   TRAINING
   JOB
+  GUIDE
 }
 
 // =========================
@@ -130,4 +131,10 @@ model Blog {
 
   @@index([published])
   @@index([featured])
+}
+
+model Subscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }

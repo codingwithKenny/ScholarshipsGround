@@ -27,10 +27,13 @@ export default function EditForm({ scholarship }) {
   const isJob = form.category === "JOB";
   const isInternship = form.category === "INTERNSHIP";
   const isTraining = form.category === "TRAINING";
+  const isGuide = form.category === "GUIDE"; // ✅ added
 
-  const showFunding = isScholarship || isFellowship || isGrant;
-  const showSalary = isJob;
-  const showDuration = isInternship || isTraining;
+  const showFunding =
+    !isGuide && (isScholarship || isFellowship || isGrant);
+  const showSalary = !isGuide && isJob;
+  const showDuration =
+    !isGuide && (isInternship || isTraining);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -52,18 +55,26 @@ export default function EditForm({ scholarship }) {
       {/* HEADER */}
       <div className="bg-gradient-to-r from-blue-900 to-teal-500 p-8 rounded-2xl text-white">
         <h1 className="text-3xl font-bold">Edit Opportunity</h1>
-        <p className="opacity-90 mt-2">Update opportunity details and publish status</p>
+        <p className="opacity-90 mt-2">
+          Update opportunity details and publish status
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-2xl p-8 space-y-8">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-2xl p-8 space-y-8"
+      >
         {/* BASIC INFO */}
         <div className="grid md:grid-cols-2 gap-6">
+          {/* ALWAYS SHOW */}
           <div>
             <label className="label">Title</label>
             <input
               className="input-modern"
               value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, title: e.target.value })
+              }
               required
             />
           </div>
@@ -73,7 +84,9 @@ export default function EditForm({ scholarship }) {
             <select
               className="input-modern"
               value={form.category || ""}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, category: e.target.value })
+              }
             >
               <option value="">Select Category</option>
               <option value="SCHOLARSHIP">Scholarship</option>
@@ -83,208 +96,260 @@ export default function EditForm({ scholarship }) {
               <option value="ENTREPRENEURSHIP">Entrepreneurship</option>
               <option value="TRAINING">Training</option>
               <option value="JOB">Job</option>
+              <option value="GUIDE">Guide</option>
             </select>
           </div>
 
-          <div>
-            <label className="label">Country</label>
-            <input
-              className="input-modern"
-              value={form.country}
-              onChange={(e) => setForm({ ...form, country: e.target.value })}
-            />
-          </div>
+          {/* HIDE FOR GUIDE */}
+          {!isGuide && (
+            <>
+              <div>
+                <label className="label">Country</label>
+                <input
+                  className="input-modern"
+                  value={form.country}
+                  onChange={(e) =>
+                    setForm({ ...form, country: e.target.value })
+                  }
+                />
+              </div>
 
+              <div>
+                <label className="label">
+                  {isScholarship ? "University" : "Organization"}
+                </label>
+                <input
+                  className="input-modern"
+                  value={form.university || form.organization || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      university: e.target.value,
+                      organization: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {isScholarship && (
+                <div>
+                  <label className="label">Degree</label>
+                  <input
+                    className="input-modern"
+                    value={form.degree || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, degree: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+
+              {showFunding && (
+                <div>
+                  <label className="label">Funding Type</label>
+                  <select
+                    className="input-modern"
+                    value={form.fundingType || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        fundingType: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select Funding Type</option>
+                    <option value="FULLY_FUNDED">Fully Funded</option>
+                    <option value="PARTIALLY_FUNDED">Partially Funded</option>
+                    <option value="TUITION_ONLY">Tuition Only</option>
+                    <option value="SELF_FUNDED">Self Funded</option>
+                  </select>
+                </div>
+              )}
+
+              {isGrant && (
+                <div>
+                  <label className="label">Amount</label>
+                  <input
+                    className="input-modern"
+                    value={form.amount || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, amount: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+
+              {showSalary && (
+                <div>
+                  <label className="label">Salary</label>
+                  <input
+                    className="input-modern"
+                    value={form.salary || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, salary: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+
+              {showDuration && (
+                <div>
+                  <label className="label">Duration</label>
+                  <input
+                    className="input-modern"
+                    value={form.duration || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, duration: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="label">Deadline</label>
+                <input
+                  type="date"
+                  className="input-modern"
+                  value={form.deadline || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      deadline: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* CONTENT */}
+        <div className="space-y-4">
           <div>
-            <label className="label">{isScholarship ? "University" : "Organization"}</label>
-            <input
-              className="input-modern"
-              value={form.university || form.organization || ""}
-              onChange={(e) =>
-                setForm({ ...form, university: e.target.value, organization: e.target.value })
+            <label className="label">
+              {isGuide ? "Guide Content" : "Overview"}
+            </label>
+            <RichMarkdownEditor
+              value={form.overview || ""}
+              onChange={(value) =>
+                setForm({ ...form, overview: value || "" })
               }
             />
           </div>
 
-          {isScholarship && (
-            <div>
-              <label className="label">Degree</label>
-              <input
-                className="input-modern"
-                value={form.degree || ""}
-                onChange={(e) => setForm({ ...form, degree: e.target.value })}
-              />
-            </div>
-          )}
+          {/* HIDE FOR GUIDE */}
+          {!isGuide && (
+            <>
+              <div>
+                <label className="label">Extra Details</label>
+                <RichMarkdownEditor
+                  value={form.extraDetails || ""}
+                  onChange={(value) =>
+                    setForm({
+                      ...form,
+                      extraDetails: value || "",
+                    })
+                  }
+                />
+              </div>
 
-          {showFunding && (
-            <div>
-              <label className="label">Funding Type</label>
-              <select
-                className="input-modern"
-                value={form.fundingType || ""}
-                onChange={(e) => setForm({ ...form, fundingType: e.target.value })}
-              >
-                <option value="">Select Funding Type</option>
-                <option value="FULLY_FUNDED">Fully Funded</option>
-                <option value="PARTIALLY_FUNDED">Partially Funded</option>
-                <option value="TUITION_ONLY">Tuition Only</option>
-                <option value="SELF_FUNDED">Self Funded</option>
-              </select>
-            </div>
-          )}
+              <div>
+                <label className="label">Eligibility</label>
+                <textarea
+                  className="textarea-modern"
+                  value={form.eligibility || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      eligibility: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
-          {isGrant && (
-            <div>
-              <label className="label">Amount</label>
-              <input
-                className="input-modern"
-                value={form.amount || ""}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                placeholder="$5000"
-              />
-            </div>
-          )}
+              <div>
+                <label className="label">Eligible Countries</label>
+                <input
+                  className="input-modern"
+                  value={form.eligibleCountries || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      eligibleCountries: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
-          {showSalary && (
-            <div>
-              <label className="label">Salary</label>
-              <input
-                className="input-modern"
-                value={form.salary || ""}
-                onChange={(e) => setForm({ ...form, salary: e.target.value })}
-                placeholder="$60,000/year"
-              />
-            </div>
-          )}
+              <div>
+                <label className="label">Benefits</label>
+                <textarea
+                  className="textarea-modern"
+                  value={form.benefits || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      benefits: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
-          {showDuration && (
-            <div>
-              <label className="label">Duration</label>
-              <input
-                className="input-modern"
-                value={form.duration || ""}
-                onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                placeholder="3 months"
-              />
-            </div>
-          )}
+              <div>
+                <label className="label">Requirements</label>
+                <textarea
+                  className="textarea-modern"
+                  value={form.requirements || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      requirements: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
-          <div>
-            <label className="label">Deadline</label>
-            <input
-              type="date"
-              className="input-modern"
-              value={form.deadline || ""}
-              onChange={(e) => setForm({ ...form, deadline: e.target.value })}
-            />
-          </div>
+              <div>
+                <label className="label">How To Apply</label>
+                <RichMarkdownEditor
+                  value={form.howToApply || ""}
+                  onChange={(value) =>
+                    setForm({
+                      ...form,
+                      howToApply: value || "",
+                    })
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="label">
+                  Official Application Link
+                </label>
+                <input
+                  className="input-modern"
+                  value={form.officialLink || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      officialLink: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </>
+          )}
         </div>
 
-        {/* TEXT AREAS */}
-        <div className="space-y-4">
-          <div>
-            <label className="label">Overview</label>
-            <RichMarkdownEditor
-              rows={4}
-              value={form.overview || ""}
-              onChange={(e) => setForm({ ...form, overview: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="label">Extra Details</label>
-            <RichMarkdownEditor
-              rows={3}
-              value={form.extraDetails || ""}
-              onChange={(e) => setForm({ ...form, extraDetails: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="label">Eligibility (one per line)</label>
-            <textarea
-              className="textarea-modern"
-              rows={3}
-              value={form.eligibility || ""}
-              onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="label">Eligible Countries (comma separated)</label>
-            <input
-              className="input-modern"
-              value={form.eligibleCountries || ""}
-              onChange={(e) => setForm({ ...form, eligibleCountries: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="label">Benefits</label>
-            <textarea
-              className="textarea-modern"
-              rows={3}
-              value={form.benefits || ""}
-              onChange={(e) => setForm({ ...form, benefits: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="label">Requirements</label>
-            <textarea
-              className="textarea-modern"
-              rows={3}
-              value={form.requirements || ""}
-              onChange={(e) => setForm({ ...form, requirements: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="label">How To Apply</label>
-            <RichMarkdownEditor
-              rows={3}
-              value={form.howToApply || ""}
-              onChange={(e) => setForm({ ...form, howToApply: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="label">Official Application Link</label>
-            <input
-              className="input-modern"
-              value={form.officialLink || ""}
-              onChange={(e) => setForm({ ...form, officialLink: e.target.value })}
-            />
-          </div>
-        </div>
-
-        {/* IMAGE UPLOAD */}
+        {/* IMAGE */}
         <div>
-          <label className="label">Scholarship Image</label>
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition relative">
-            {imageFile ? (
-              <img
-                src={URL.createObjectURL(imageFile)}
-                alt="Preview"
-                className="max-h-56 object-contain rounded-md"
-              />
-            ) : form.image ? (
-              <img
-                src={form.image}
-                alt="Current Image"
-                className="max-h-56 object-contain rounded-md"
-              />
-            ) : (
-              <p className="text-gray-400">Click or drag to upload a new image</p>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files[0])}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-          </div>
+          <label className="label">Image</label>
+          <input
+            type="file"
+            onChange={(e) =>
+              setImageFile(e.target.files[0])
+            }
+          />
         </div>
 
         {/* FLAGS */}
@@ -292,20 +357,32 @@ export default function EditForm({ scholarship }) {
           <label>
             <input
               type="checkbox"
-              checked={form.trending || false}
-              onChange={(e) => setForm({ ...form, trending: e.target.checked })}
+              checked={form.featured || false}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  featured: e.target.checked,
+                })
+              }
             />{" "}
-            Trending
+            Featured
           </label>
 
-          <label>
-            <input
-              type="checkbox"
-              checked={form.popular || false}
-              onChange={(e) => setForm({ ...form, popular: e.target.checked })}
-            />{" "}
-            Popular
-          </label>
+          {!isGuide && (
+            <label>
+              <input
+                type="checkbox"
+                checked={form.trending || false}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    trending: e.target.checked,
+                  })
+                }
+              />{" "}
+              Trending
+            </label>
+          )}
         </div>
 
         {/* STATUS */}
@@ -314,7 +391,9 @@ export default function EditForm({ scholarship }) {
           <select
             className="input-modern"
             value={form.status || "DRAFT"}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, status: e.target.value })
+            }
           >
             <option value="DRAFT">Draft</option>
             <option value="PUBLISHED">Published</option>
@@ -324,7 +403,7 @@ export default function EditForm({ scholarship }) {
         {/* SUBMIT */}
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-950 to-teal-500 text-white py-3 rounded-xl font-semibold shadow-lg hover:scale-[1.02] transition"
+          className="w-full bg-gradient-to-r from-blue-950 to-teal-500 text-white py-3 rounded-xl font-semibold"
         >
           Update Opportunity
         </button>

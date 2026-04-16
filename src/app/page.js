@@ -40,8 +40,10 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import WhatsAppCommunity from "./components/whatsapp";
 import prisma from "@/lib/prisma";
+import Newsletter from "./components/Newletter";
 
 export default async function Home() {
+
   // Fetch latest scholarships
   const scholarships = await prisma.scholarship.findMany({
     where: { status: "PUBLISHED" },
@@ -83,7 +85,7 @@ export default async function Home() {
           <p className="text-lg md:text-xl text-gray-700 mb-8">
             Verified undergraduate, masters, and PhD scholarships from trusted institutions globally.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full px-4 sm:px-0">
+          {/* <div className="flex flex-col sm:flex-row gap-4 w-full px-4 sm:px-0">
             <input
               type="text"
               placeholder="Search scholarships..."
@@ -92,7 +94,7 @@ export default async function Home() {
             <button className="bg-gradient-to-r from-blue-950 to-teal-500 px-6 py-4 rounded-lg font-semibold shadow-lg hover:scale-105 transition text-white">
               Search
             </button>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -127,10 +129,10 @@ export default async function Home() {
             <p className="text-xs text-gray-500 mt-1 truncate">
               {sch.country} | {sch.degree}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            {/* <p className="text-xs text-gray-500 mt-1">
               <span className="font-semibold">Deadline:</span>{" "}
               {new Date(sch.deadline).toLocaleDateString()}
-            </p>
+            </p> */}
            <p className="text-xs text-gray-500 mt-1">
   <span className="font-semibold">Posted:</span>{" "}
   {new Date(sch.createdAt).toLocaleDateString("en-US", {
@@ -323,16 +325,7 @@ export default async function Home() {
       </section>
 
       {/* Newsletter */}
-      <section id="newsletter" className="py-20 px-6 bg-gradient-to-r from-green-50 to-teal-50">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">Stay Updated!</h2>
-          <p className="text-gray-700 mb-8">Subscribe to our newsletter to get the latest scholarships directly in your inbox.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <input type="email" placeholder="Enter your email..." className="flex-1 px-5 py-4 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-md transition" />
-            <button className="bg-gradient-to-r from-green-500 to-teal-500 px-6 py-4 rounded-lg font-semibold shadow-lg hover:scale-105 transition-transform text-white">Subscribe</button>
-          </div>
-        </div>
-      </section>
+     <Newsletter/>
 
       {/* About Section */}
       <section id="about" className="py-20 px-6 bg-gray-100">

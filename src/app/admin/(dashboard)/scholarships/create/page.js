@@ -42,18 +42,23 @@ export default function CreateOpportunity() {
   const isJob = form.category === "JOB";
   const isInternship = form.category === "INTERNSHIP";
   const isTraining = form.category === "TRAINING";
+  const isGuide = form.category === "GUIDE"; // ✅ added
 
-  const showFunding = isScholarship || isFellowship || isGrant;
-  const showSalary = isJob;
-  const showDuration = isInternship || isTraining;
+  const showFunding =
+    !isGuide && (isScholarship || isFellowship || isGrant);
+  const showSalary = !isGuide && isJob;
+  const showDuration =
+    !isGuide && (isInternship || isTraining);
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+    Object.entries(form).forEach(([key, value]) =>
+      formData.append(key, value)
+    );
     if (imageFile) formData.append("image", imageFile);
-       formData.set("noDeadline", form.noDeadline);
+    formData.set("noDeadline", form.noDeadline);
 
     await createScholarship(formData);
     router.push("/admin/scholarships");
@@ -66,7 +71,7 @@ export default function CreateOpportunity() {
       <div className="bg-gradient-to-r from-blue-900 to-teal-500 p-8 rounded-2xl text-white">
         <h1 className="text-3xl font-bold">Create Opportunity</h1>
         <p className="opacity-90 mt-2">
-          Add scholarships, internships, jobs, grants, and more
+          Add scholarships, internships, jobs, grants, guides and more
         </p>
       </div>
 
@@ -75,8 +80,10 @@ export default function CreateOpportunity() {
         {/* BASIC INFO */}
         <div>
           <h2 className="text-xl font-semibold mb-6">Basic Information</h2>
+
           <div className="grid md:grid-cols-2 gap-6">
 
+            {/* ALWAYS SHOW */}
             <label className="flex flex-col">
               Title *
               <input
@@ -102,274 +109,241 @@ export default function CreateOpportunity() {
                 <option value="ENTREPRENEURSHIP">Entrepreneurship</option>
                 <option value="TRAINING">Training</option>
                 <option value="JOB">Job</option>
+                <option value="GUIDE">Guide</option>
               </select>
             </label>
 
-            <label className="flex flex-col">
-              Country *
-              <input
-                className="input"
-                placeholder="Country"
-                required
-                value={form.country}
-                onChange={(e) => setForm({ ...form, country: e.target.value })}
-              />
-            </label>
-
-            {/* Scholarship-specific fields */}
-            {isScholarship && (
+            {/* EVERYTHING ELSE (HIDDEN FOR GUIDE) */}
+            {!isGuide && (
               <>
                 <label className="flex flex-col">
-                  University
+                  Country *
                   <input
                     className="input"
-                    placeholder="University Name"
-                    value={form.university}
-                    onChange={(e) => setForm({ ...form, university: e.target.value })}
+                    placeholder="Country"
+                    required
+                    value={form.country}
+                    onChange={(e) => setForm({ ...form, country: e.target.value })}
                   />
                 </label>
 
+                {isScholarship && (
+                  <>
+                    <label className="flex flex-col">
+                      University
+                      <input
+                        className="input"
+                        placeholder="University Name"
+                        value={form.university}
+                        onChange={(e) => setForm({ ...form, university: e.target.value })}
+                      />
+                    </label>
+
+                    <label className="flex flex-col">
+                      Degree
+                      <input
+                        className="input"
+                        placeholder="BSc, MSc, PhD..."
+                        value={form.degree}
+                        onChange={(e) => setForm({ ...form, degree: e.target.value })}
+                      />
+                    </label>
+                  </>
+                )}
+
+                {!isScholarship && (
+                  <label className="flex flex-col">
+                    Organization
+                    <input
+                      className="input"
+                      placeholder="Organization Name"
+                      value={form.organization}
+                      onChange={(e) => setForm({ ...form, organization: e.target.value })}
+                    />
+                  </label>
+                )}
+
+                {showFunding && (
+                  <label className="flex flex-col">
+                    Funding Type
+                    <select
+                      className="input"
+                      value={form.fundingType}
+                      onChange={(e) => setForm({ ...form, fundingType: e.target.value })}
+                    >
+                      <option value="">Select Funding Type</option>
+                      <option value="FULLY_FUNDED">Fully Funded</option>
+                      <option value="PARTIALLY_FUNDED">Partially Funded</option>
+                      <option value="TUITION_ONLY">Tuition Only</option>
+                      <option value="SELF_FUNDED">Self Funded</option>
+                    </select>
+                  </label>
+                )}
+
+                {isGrant && (
+                  <label className="flex flex-col">
+                    Amount
+                    <input
+                      className="input"
+                      placeholder="Grant Amount ($5000)"
+                      value={form.amount}
+                      onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                    />
+                  </label>
+                )}
+
+                {showSalary && (
+                  <label className="flex flex-col">
+                    Salary
+                    <input
+                      className="input"
+                      placeholder="Salary ($60,000/year)"
+                      value={form.salary}
+                      onChange={(e) => setForm({ ...form, salary: e.target.value })}
+                    />
+                  </label>
+                )}
+
+                {showDuration && (
+                  <label className="flex flex-col">
+                    Duration
+                    <input
+                      className="input"
+                      placeholder="3 months, 6 months..."
+                      value={form.duration}
+                      onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                    />
+                  </label>
+                )}
+
                 <label className="flex flex-col">
-                  Degree
+                  Deadline
+
                   <input
+                    type="date"
                     className="input"
-                    placeholder="BSc, MSc, PhD..."
-                    value={form.degree}
-                    onChange={(e) => setForm({ ...form, degree: e.target.value })}
+                    value={form.deadline}
+                    disabled={form.noDeadline}
+                    onChange={(e) =>
+                      setForm({ ...form, deadline: e.target.value })
+                    }
                   />
+
+                  <label className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={form.noDeadline}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          noDeadline: e.target.checked,
+                          deadline: e.target.checked ? "" : prev.deadline,
+                        }))
+                      }
+                    />
+                    No specific deadline (Rolling / Always open)
+                  </label>
+
+                  <span className="text-xs text-gray-400 mt-1">
+                    Select a date OR mark as ongoing opportunity
+                  </span>
                 </label>
               </>
             )}
-
-            {/* Other categories */}
-            {!isScholarship && (
-              <label className="flex flex-col">
-                Organization
-                <input
-                  className="input"
-                  placeholder="Organization Name"
-                  value={form.organization}
-                  onChange={(e) => setForm({ ...form, organization: e.target.value })}
-                />
-              </label>
-            )}
-
-            {/* Funding */}
-            {showFunding && (
-              <label className="flex flex-col">
-                Funding Type
-                <select
-                  className="input"
-                  value={form.fundingType}
-                  onChange={(e) => setForm({ ...form, fundingType: e.target.value })}
-                >
-                  <option value="">Select Funding Type</option>
-                  <option value="FULLY_FUNDED">Fully Funded</option>
-                  <option value="PARTIALLY_FUNDED">Partially Funded</option>
-                  <option value="TUITION_ONLY">Tuition Only</option>
-                  <option value="SELF_FUNDED">Self Funded</option>
-                </select>
-              </label>
-            )}
-
-            {/* Grant Amount */}
-            {isGrant && (
-              <label className="flex flex-col">
-                Amount
-                <input
-                  className="input"
-                  placeholder="Grant Amount ($5000)"
-                  value={form.amount}
-                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                />
-              </label>
-            )}
-
-            {/* Job Salary */}
-            {showSalary && (
-              <label className="flex flex-col">
-                Salary
-                <input
-                  className="input"
-                  placeholder="Salary ($60,000/year)"
-                  value={form.salary}
-                  onChange={(e) => setForm({ ...form, salary: e.target.value })}
-                />
-              </label>
-            )}
-
-            {/* Duration */}
-            {showDuration && (
-              <label className="flex flex-col">
-                Duration
-                <input
-                  className="input"
-                  placeholder="3 months, 6 months..."
-                  value={form.duration}
-                  onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                />
-              </label>
-            )}
-
-            {/* Deadline */}
-           <label className="flex flex-col">
-  Deadline
-
-  <input
-    type="date"
-    className="input"
-    value={form.deadline}
-    disabled={form.noDeadline}
-    onChange={(e) =>
-      setForm({ ...form, deadline: e.target.value })
-    }
-  />
-
-  <label className="flex items-center gap-2 mt-2 text-sm text-gray-600">
-   <input
-  type="checkbox"
-  checked={form.noDeadline}
-  onChange={(e) =>
-    setForm((prev) => ({
-      ...prev,
-      noDeadline: e.target.checked,
-      deadline: e.target.checked ? "" : prev.deadline,
-    }))
-  }
-/>
-    No specific deadline (Rolling / Always open)
-  </label>
-
-  <span className="text-xs text-gray-400 mt-1">
-    Select a date OR mark as ongoing opportunity
-  </span>
-</label>
           </div>
         </div>
 
         {/* OVERVIEW */}
         <label className="flex flex-col">
-          Overview
+          {isGuide ? "Guide Content" : "Overview"}
           <RichMarkdownEditor
-  value={form.overview}
-  onChange={(value) => setForm({ ...form, overview: value || "" })}
-/>
-        </label>
-
-        {/* ELIGIBILITY */}
-        <label className="flex flex-col">
-          Eligibility
-          <textarea
-            className="textarea"
-            placeholder="Eligibility criteria, one per line"
-            value={form.eligibility}
-            onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
+            value={form.overview}
+            onChange={(value) => setForm({ ...form, overview: value || "" })}
           />
         </label>
 
-        {/* Eligible Countries */}
-        <label className="flex flex-col">
-          Eligible Countries
-          <textarea
-            className="textarea"
-            placeholder="Comma separated countries (e.g., Nigeria, Ghana)"
-            value={form.eligibleCountries}
-            onChange={(e) => setForm({ ...form, eligibleCountries: e.target.value })}
-          />
-        </label>
+        {/* HIDE THESE FOR GUIDE */}
+        {!isGuide && (
+          <>
+            <label className="flex flex-col">
+              Eligibility
+              <textarea
+                className="textarea"
+                value={form.eligibility}
+                onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
+              />
+            </label>
 
-        {/* BENEFITS */}
-        <label className="flex flex-col">
-          Benefits
-          <textarea
-            className="textarea"
-            placeholder="Benefits, one per line"
-            value={form.benefits}
-            onChange={(e) => setForm({ ...form, benefits: e.target.value })}
-          />
-        </label>
+            <label className="flex flex-col">
+              Eligible Countries
+              <textarea
+                className="textarea"
+                value={form.eligibleCountries}
+                onChange={(e) =>
+                  setForm({ ...form, eligibleCountries: e.target.value })
+                }
+              />
+            </label>
 
-        {/* REQUIREMENTS */}
-        <label className="flex flex-col">
-          Requirements
-          <textarea
-            className="textarea"
-            placeholder="Requirements, one per line"
-            value={form.requirements}
-            onChange={(e) => setForm({ ...form, requirements: e.target.value })}
-          />
-        </label>
+            <label className="flex flex-col">
+              Benefits
+              <textarea
+                className="textarea"
+                value={form.benefits}
+                onChange={(e) => setForm({ ...form, benefits: e.target.value })}
+              />
+            </label>
 
-        {/* HOW TO APPLY */}
-        <label className="flex flex-col">
-          How To Apply
-          <RichMarkdownEditor
-  value={form.howToApply}
-  onChange={(value) => setForm({ ...form, howToApply: value || "" })}
-/>
-        </label>
+            <label className="flex flex-col">
+              Requirements
+              <textarea
+                className="textarea"
+                value={form.requirements}
+                onChange={(e) => setForm({ ...form, requirements: e.target.value })}
+              />
+            </label>
 
-        {/* EXTRA DETAILS */}
-        <label className="flex flex-col">
-          Extra Details
-          <RichMarkdownEditor
-  value={form.extraDetails}
-  onChange={(value) =>
-    setForm({ ...form, extraDetails: value || "" })
-  }
-/>
-        </label>
+            <label className="flex flex-col">
+              How To Apply
+              <RichMarkdownEditor
+                value={form.howToApply}
+                onChange={(value) =>
+                  setForm({ ...form, howToApply: value || "" })
+                }
+              />
+            </label>
 
-        {/* OFFICIAL LINK */}
-        <label className="flex flex-col">
-          Official Link
-          <input
-            className="input"
-            placeholder="https://official-link.com"
-            value={form.officialLink}
-            onChange={(e) => setForm({ ...form, officialLink: e.target.value })}
-          />
-        </label>
+            <label className="flex flex-col">
+              Extra Details
+              <RichMarkdownEditor
+                value={form.extraDetails}
+                onChange={(value) =>
+                  setForm({ ...form, extraDetails: value || "" })
+                }
+              />
+            </label>
+
+            <label className="flex flex-col">
+              Official Link
+              <input
+                className="input"
+                value={form.officialLink}
+                onChange={(e) =>
+                  setForm({ ...form, officialLink: e.target.value })
+                }
+              />
+            </label>
+          </>
+        )}
 
         {/* IMAGE */}
         <label className="flex flex-col">
-  Image Upload
-  <div
-    className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition relative"
-  >
-    {imageFile ? (
-      <img
-        src={URL.createObjectURL(imageFile)}
-        alt="Preview"
-        className="max-h-40 object-contain rounded-md"
-      />
-    ) : (
-      <>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-12 w-12 text-gray-400 mb-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 15a4 4 0 014-4h10a4 4 0 014 4v4H3v-4zM16 5l-4-4-4 4m4-4v16"
+          Image Upload
+          <input
+            type="file"
+            onChange={(e) => setImageFile(e.target.files[0])}
           />
-        </svg>
-        <p className="text-gray-500">Click or drag to upload an image</p>
-      </>
-    )}
-    <input
-      type="file"
-      accept="image/*"
-      onChange={(e) => setImageFile(e.target.files[0])}
-      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-    />
-  </div>
-</label>
+        </label>
 
         {/* FLAGS */}
         <div className="flex gap-6">
@@ -382,14 +356,18 @@ export default function CreateOpportunity() {
             Featured
           </label>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={form.trending}
-              onChange={(e) => setForm({ ...form, trending: e.target.checked })}
-            />
-            Trending
-          </label>
+          {!isGuide && (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.trending}
+                onChange={(e) =>
+                  setForm({ ...form, trending: e.target.checked })
+                }
+              />
+              Trending
+            </label>
+          )}
         </div>
 
         {/* STATUS */}
