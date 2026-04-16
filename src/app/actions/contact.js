@@ -16,7 +16,7 @@ export async function sendContact(formData) {
   try {
     await resend.emails.send({
       from: "ScholarshipGround <onboarding@resend.dev>",
-      to: "groundscholarship@gmail.com", // 👉 CHANGE THIS TO YOUR EMAIL
+      to: ".....@gmail.com", // 👉 CHANGE THIS TO YOUR EMAIL
       subject: `New Contact Message from ${name}`,
       html: `
         <h2>New Message</h2>
