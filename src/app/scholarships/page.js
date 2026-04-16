@@ -182,18 +182,23 @@ export default async function ScholarshipsPage({ searchParams }) {
 
         <div className="grid lg:grid-cols-4 gap-10">
           {/* LEFT SIDEBAR */}
-          <aside className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm h-fit lg:sticky lg:top-24">
-            <h2 className="font-bold mb-4 text-lg">🌍 Countries</h2>
-            <ul className="space-y-2 text-sm max-h-80 overflow-y-auto pr-2">
-              {countries.map((c, i) => (
-                <li key={i}>
-                  <Link href={`/scholarships?country=${c.country}`} className="hover:text-blue-600 transition">
-                    {c.country}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </aside>
+         <aside className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm h-fit lg:sticky lg:top-24">
+  <h2 className="font-bold mb-4 text-lg">🔥 Popular Destinations</h2>
+
+  <div className="space-y-3 text-sm">
+    {countries.slice(0, 8).map((c, i) => (
+      <Link
+        key={i}
+        href={`/scholarships?country=${c.country}`}
+        className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+      >
+        {c.country}
+      </Link>
+    ))}
+  </div>
+</aside>
+
+
 
           {/* MAIN CONTENT */}
           <div className="lg:col-span-2 space-y-6">

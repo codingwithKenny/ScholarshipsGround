@@ -2,6 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import prisma from "@/lib/prisma";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import WhatsAppCommunity from "@/app/components/whatsapp";
 
 /* ================= METADATA ================= */
 export async function generateMetadata({ params }) {
@@ -26,11 +29,9 @@ export async function generateMetadata({ params }) {
   return {
     title: `${item.title} | ScholarshipGround`,
     description: `${item.title} in ${item.country}. ${deadlineText}.`,
-
     alternates: {
       canonical: canonicalUrl,
     },
-
     openGraph: {
       title: item.title,
       description: `${item.title} in ${item.country}`,
@@ -95,17 +96,52 @@ function getCategoryLabel(category) {
     ENTREPRENEURSHIP: "Entrepreneurship",
     TRAINING: "Training",
     JOB: "Job",
+    GUIDE: "Guide",
   };
 
   return map[category] || category;
 }
 
-/* ✅ CLEAN TITLE FIX */
 function cleanTitle(title) {
   return title
     .replace(/\(.*?\)/g, "")
     .replace(/–.*$/g, "")
     .trim();
+}
+
+/* ================= MARKDOWN RENDERER (NEW) ================= */
+function RenderContent({ content }) {
+  if (!content) return null;
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        a: ({ node, ...props }) => (
+          <a
+            {...props}
+            className="text-blue-600 underline hover:text-blue-800"
+            target="_blank"
+            rel="noopener noreferrer"
+          />
+        ),
+        strong: ({ node, ...props }) => (
+          <strong {...props} className="font-bold text-gray-900" />
+        ),
+        p: ({ node, ...props }) => (
+          <p {...props} className="text-gray-700 leading-relaxed mb-2" />
+        ),
+        ul: ({ node, ...props }) => (
+          <ul {...props} className="list-disc pl-5 space-y-1" />
+        ),
+        ol: ({ node, ...props }) => (
+          <ol {...props} className="list-decimal pl-5 space-y-1" />
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  );
 }
 
 /* ================= PAGE ================= */
@@ -126,7 +162,6 @@ export default async function DetailPage({ params }) {
 
   const status = getStatus(item.deadline);
   const statusColor = getStatusColor(status);
-
   const today = new Date();
 
   const [related, trending, popular] = await Promise.all([
@@ -137,12 +172,6 @@ export default async function DetailPage({ params }) {
         NOT: { id: item.id },
       },
       take: 6,
-      orderBy: {
-        deadline: {
-          sort: "asc",
-          nulls: "last",
-        },
-      },
     }),
 
     prisma.scholarship.findMany({
@@ -150,15 +179,8 @@ export default async function DetailPage({ params }) {
         trending: true,
         status: "PUBLISHED",
         NOT: { id: item.id },
-        OR: [{ deadline: null }, { deadline: { gte: today } }],
       },
       take: 4,
-      orderBy: {
-        deadline: {
-          sort: "asc",
-          nulls: "last",
-        },
-      },
     }),
 
     prisma.scholarship.findMany({
@@ -166,15 +188,8 @@ export default async function DetailPage({ params }) {
         popular: true,
         status: "PUBLISHED",
         NOT: { id: item.id },
-        OR: [{ deadline: null }, { deadline: { gte: today } }],
       },
       take: 4,
-      orderBy: {
-        deadline: {
-          sort: "asc",
-          nulls: "last",
-        },
-      },
     }),
   ]);
 
@@ -200,8 +215,7 @@ export default async function DetailPage({ params }) {
               />
             )}
 
-            <div className="p-6">
-
+                         <div className="p-6">
               {/* BADGES */}
               <div className="flex flex-wrap gap-2 mb-3">
                 <span className={`text-xs px-3 py-1 rounded-full ${statusColor}`}>
@@ -273,60 +287,78 @@ export default async function DetailPage({ params }) {
                 </a>
               )}
             </div>
+
+            
           </div>
 
-          {/* CONTENT */}
-          <Section title="Overview" content={item.overview} />
+          {/* ================= CONTENT ================= */}
 
-         
+          <div className="bg-white p-6 rounded-2xl shadow-sm">
+            <h2 className="text-xl font-semibold mb-3">Overview</h2>
+            <RenderContent content={item.overview} />
+          </div>
 
           <ListSection title="Eligibility" data={item.eligibility} />
-                           <ListSection title="Eligible Countries" data={item.eligibleCountries} />
-
+          <ListSection title="Eligible Countries" data={item.eligibleCountries} />
           <ListSection title="Benefits" data={item.benefits} />
           <ListSection title="Requirements" data={item.requirements} />
-           <div className="bg-white p-6 rounded-2xl shadow-sm">
+
+          {/* ================= GUIDE SECTION ================= */}
+          {item.category === "GUIDE" && (
+            <div className="space-y-6">
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm">
+                <h2 className="text-xl font-semibold mb-3">📘 Guide</h2>
+                <RenderContent content={item.overview} />
+              </div>
+
+              {item.howToApply && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm">
+                  <h2 className="text-xl font-semibold mb-3">🪜 Steps</h2>
+                  <RenderContent content={item.howToApply} />
+                </div>
+              )}
+
+              {item.extraDetails && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm">
+                  <h2 className="text-xl font-semibold mb-3">📌 Important Notes</h2>
+                  <RenderContent content={item.extraDetails} />
+                </div>
+              )}
+
+            </div>
+          )}
+
+          {/* ================= APPLY ================= */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm">
             <h2 className="text-xl font-semibold mb-3">
               How to Apply for {cleanTitle(item.title)}
             </h2>
 
             {item.howToApply ? (
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">
-                {item.howToApply}
-              </p>
+              <RenderContent content={item.howToApply} />
             ) : (
               <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-                <li>Click the Apply Now button above</li>
-                <li>Check eligibility requirements carefully</li>
-                <li>Prepare required documents</li>
-                <li>Write a strong motivation letter</li>
-                <li>Submit before deadline</li>
+                <li>Click Apply Now</li>
+                <li>Check requirements</li>
+                <li>Submit application</li>
               </ol>
             )}
           </div>
 
-          <Section title="Important Notes" content={item.extraDetails} />
-          {item.officialLink && (
-                <a
-                  href={item.officialLink}
-                  target="_blank"
-                  className="inline-block mt-6 bg-gradient-to-r from-blue-950 to-teal-500 px-6 py-3 text-white font-semibold rounded-lg shadow hover:scale-105 transition"
-                >
-                  Click here to Apply →
-                </a>
-              )}
-
+          {/* TRENDING */}
           {trending.length > 0 && (
             <CardList title="🔥 Trending Opportunities" data={trending} />
           )}
 
+          {/* POPULAR */}
           {popular.length > 0 && (
             <CardList title="⭐ Popular Opportunities" data={popular} />
           )}
 
         </main>
 
-        {/* SIDEBAR */}
+        {/* ================= SIDEBAR (UNCHANGED) ================= */}
         <aside className="space-y-6 lg:sticky lg:top-32 h-fit">
 
           {item.officialLink && (
@@ -354,13 +386,15 @@ export default async function DetailPage({ params }) {
                 <Link
                   key={r.id}
                   href={`/scholarships/${r.slug}`}
-                  className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                  className="block p-3 bg-gray-50 text-blue-500 rounded-lg hover:bg-gray-100"
                 >
                   {r.title}
                 </Link>
               ))}
             </div>
+            
           </div>
+          <WhatsAppCommunity/>
 
         </aside>
       </div>
@@ -369,17 +403,6 @@ export default async function DetailPage({ params }) {
 }
 
 /* ================= COMPONENTS ================= */
-function Section({ title, content }) {
-  if (!content) return null;
-
-  return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm">
-      <h2 className="text-xl font-semibold mb-3">{title}</h2>
-      <p className="text-gray-700 whitespace-pre-line">{content}</p>
-    </div>
-  );
-}
-
 function ListSection({ title, data }) {
   if (!data?.length) return null;
 
