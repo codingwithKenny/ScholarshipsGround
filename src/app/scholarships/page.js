@@ -102,6 +102,7 @@ export default async function ScholarshipsPage({ searchParams }) {
   ]);
 
   const totalPages = Math.ceil(total / pageSize);
+  
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -208,7 +209,8 @@ export default async function ScholarshipsPage({ searchParams }) {
               </div>
             ) : (
               scholarships.map((sch) => {
-                const status = getStatus(sch.deadline);
+const isGuide = sch.category === "GUIDE";
+const status = !isGuide ? getStatus(sch.deadline) : null;
                 const statusColor =
                   status === "Open"
                     ? "bg-green-100 text-green-700"
@@ -219,8 +221,9 @@ export default async function ScholarshipsPage({ searchParams }) {
                 return (
                   <div
                     key={sch.id}
-                    className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition p-6 flex flex-col md:flex-row gap-6 group"
-                  >
+                    className={`bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition p-6 flex flex-col md:flex-row gap-6 group ${
+  isGuide ? "border-l-4 border-l-green-500" : ""
+}`}>
                     {sch.image && (
                       <div className="md:w-44 w-full h-40 overflow-hidden rounded-xl">
                         <img
@@ -233,9 +236,11 @@ export default async function ScholarshipsPage({ searchParams }) {
 
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
-                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${statusColor}`}>
-                          {status}
-                        </span>
+                        {!isGuide && (
+  <span className={`text-xs px-3 py-1 rounded-full font-medium ${statusColor}`}>
+    {status}
+  </span>
+)}
 
                         {sch.category && (
                           <span className="ml-2 text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
@@ -251,18 +256,25 @@ export default async function ScholarshipsPage({ searchParams }) {
                           {sch.country} • {sch.degree}
                         </p>
 
-                        <p className="text-sm mt-1">
-                          Deadline:{" "}
-                          <span className="font-medium">
-                            {new Date(sch.deadline).toLocaleDateString()}
-                          </span>
-                        </p>
-
-                        {sch.overview && (
-                          <p className="text-sm text-gray-600 mt-3 line-clamp-3">
-                            {sch.overview}
-                          </p>
-                        )}
+                        {!isGuide && sch.deadline && (
+  <p className="text-sm mt-1">
+    Deadline:{" "}
+    <span className="font-medium">
+      {new Date(sch.deadline).toLocaleDateString()}
+    </span>
+  </p>
+)}
+{isGuide ? (
+  <p className="text-sm text-gray-600 mt-3 italic">
+    📘 Read full guide article →
+  </p>
+) : (
+  sch.overview && (
+    <p className="text-sm text-gray-600 mt-3 line-clamp-3">
+      {sch.overview}
+    </p>
+  )
+)}
                       </div>
 
                       <div className="mt-5">

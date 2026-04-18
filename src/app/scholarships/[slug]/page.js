@@ -114,33 +114,66 @@ function RenderContent({ content }) {
   if (!content) return null;
 
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        a: ({ node, ...props }) => (
-          <a
-            {...props}
-            className="text-blue-600 underline hover:text-blue-800"
-            target="_blank"
-            rel="noopener noreferrer"
-          />
-        ),
-        strong: ({ node, ...props }) => (
-          <strong {...props} className="font-bold text-gray-900" />
-        ),
-        p: ({ node, ...props }) => (
-          <p {...props} className="text-gray-700 leading-relaxed mb-2" />
-        ),
-        ul: ({ node, ...props }) => (
-          <ul {...props} className="list-disc pl-5 space-y-1" />
-        ),
-        ol: ({ node, ...props }) => (
-          <ol {...props} className="list-decimal pl-5 space-y-1" />
-        ),
-      }}
-    >
-      {content}
-    </ReactMarkdown>
+    <div className="max-w-3xl mx-auto prose prose-gray max-w-none
+      prose-p:text-gray-700 prose-p:leading-7
+      prose-li:leading-7
+      prose-ul:space-y-1
+      prose-ol:space-y-1
+      prose-a:text-blue-600 hover:prose-a:underline
+      prose-strong:text-gray-900
+    ">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+         h1: ({ children }) => (
+  <h1 className="text-3xl font-bold mt-10 mb-6 px-5 py-4 bg-gradient-to-r from-blue-50 to-teal-50 border-l-4 border-blue-600 rounded-xl shadow-sm text-gray-900">
+    {children}
+  </h1>
+),
+
+          h2: ({ children }) => (
+            <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900 border-b pb-2 border-gray-200">
+              {children}
+            </h2>
+          ),
+
+          h3: ({ children }) => (
+            <h3 className="text-xl font-semibold mt-6 mb-3 text-gray-800">
+              {children}
+            </h3>
+          ),
+
+          p: ({ children }) => (
+            <p className="text-gray-700 leading-7 mb-4">{children}</p>
+          ),
+
+          ul: ({ children }) => (
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">{children}</ul>
+          ),
+
+          ol: ({ children }) => (
+            <ol className="list-decimal pl-6 space-y-2 text-gray-700">{children}</ol>
+          ),
+
+          a: ({ children, href }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              {children}
+            </a>
+          ),
+
+          strong: ({ children }) => (
+            <strong className="font-semibold text-gray-900">{children}</strong>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 }
 
@@ -218,9 +251,11 @@ export default async function DetailPage({ params }) {
                          <div className="p-6">
               {/* BADGES */}
               <div className="flex flex-wrap gap-2 mb-3">
-                <span className={`text-xs px-3 py-1 rounded-full ${statusColor}`}>
-                  {status}
-                </span>
+                {item.category !== "GUIDE" && (
+  <span className={`text-xs px-3 py-1 rounded-full ${statusColor}`}>
+    {status}
+  </span>
+)}
 
                 <span className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700">
                   {getCategoryLabel(item.category)}
@@ -245,8 +280,9 @@ export default async function DetailPage({ params }) {
               {/* KEY INFO */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 text-sm">
 
-                <Info label="Deadline" value={formatDeadline(item.deadline)} />
-
+{item.category !== "GUIDE" && (
+  <Info label="Deadline" value={formatDeadline(item.deadline)} />
+)}
                 {["SCHOLARSHIP", "GRANT", "FELLOWSHIP"].includes(item.category) && (
                   <Info
                     label="Funding"
@@ -293,15 +329,19 @@ export default async function DetailPage({ params }) {
 
           {/* ================= CONTENT ================= */}
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm">
-            <h2 className="text-xl font-semibold mb-3">Overview</h2>
-            <RenderContent content={item.overview} />
-          </div>
+          {item.category !== "GUIDE" && item.overview && (
+  <div className="bg-white p-6 rounded-2xl shadow-sm">
+    <h2 className="text-xl font-semibold mb-3">Overview</h2>
+    <RenderContent content={item.overview} />
+  </div>
+)}
 
           <ListSection title="Eligibility" data={item.eligibility} />
           <ListSection title="Eligible Countries" data={item.eligibleCountries} />
           <ListSection title="Benefits" data={item.benefits} />
           <ListSection title="Requirements" data={item.requirements} />
+           
+         
 
           {/* ================= GUIDE SECTION ================= */}
           {item.category === "GUIDE" && (
@@ -312,7 +352,7 @@ export default async function DetailPage({ params }) {
                 <RenderContent content={item.overview} />
               </div>
 
-              {item.howToApply && (
+              {/* {item.howToApply && (
                 <div className="bg-white p-6 rounded-2xl shadow-sm">
                   <h2 className="text-xl font-semibold mb-3">🪜 Steps</h2>
                   <RenderContent content={item.howToApply} />
@@ -324,27 +364,46 @@ export default async function DetailPage({ params }) {
                   <h2 className="text-xl font-semibold mb-3">📌 Important Notes</h2>
                   <RenderContent content={item.extraDetails} />
                 </div>
-              )}
+              )} */}
 
             </div>
           )}
 
           {/* ================= APPLY ================= */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm">
-            <h2 className="text-xl font-semibold mb-3">
-              How to Apply for {cleanTitle(item.title)}
-            </h2>
+{item.category !== "GUIDE" && (
+  <>
+    {/* HOW TO APPLY */}
+    <div className="bg-white p-6 rounded-2xl shadow-sm">
+      <h2 className="text-xl font-semibold mb-3">
+        How to Apply for {cleanTitle(item.title)}
+      </h2>
 
-            {item.howToApply ? (
-              <RenderContent content={item.howToApply} />
-            ) : (
-              <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-                <li>Click Apply Now</li>
-                <li>Check requirements</li>
-                <li>Submit application</li>
-              </ol>
-            )}
-          </div>
+      {item.howToApply && (
+        <RenderContent content={item.howToApply} />
+      )}
+
+      
+    </div>
+
+    {/* IMPORTANT NOTES (SEPARATE BOX) */}
+    {item.extraDetails && (
+      <div className="bg-white p-6 rounded-2xl shadow-sm">
+        <h2 className="text-xl font-semibold mb-3">📌 Important Notes</h2>
+        <RenderContent content={item.extraDetails} />
+      </div>
+    )}
+    {item.officialLink && (
+        <a
+          href={item.officialLink}
+          target="_blank"
+          className="inline-block mt-6 bg-gradient-to-r from-blue-950 to-teal-500 px-6 py-3 text-white font-semibold rounded-lg shadow hover:scale-105 transition"
+        >
+          Click here to Apply →
+        </a>
+      )}
+  </>
+)}
+
 
           {/* TRENDING */}
           {trending.length > 0 && (
@@ -379,21 +438,23 @@ export default async function DetailPage({ params }) {
             </div>
           )}
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm">
-            <h3 className="font-semibold mb-3">More in {item.country}</h3>
-            <div className="space-y-3">
-              {related.map((r) => (
-                <Link
-                  key={r.id}
-                  href={`/scholarships/${r.slug}`}
-                  className="block p-3 bg-gray-50 text-blue-500 rounded-lg hover:bg-gray-100"
-                >
-                  {r.title}
-                </Link>
-              ))}
-            </div>
-            
-          </div>
+          {item.category !== "GUIDE" && related.length > 0 && (
+  <div className="bg-white p-6 rounded-2xl shadow-sm">
+    <h3 className="font-semibold mb-3">More in {item.country}</h3>
+
+    <div className="space-y-3">
+      {related.map((r) => (
+        <Link
+          key={r.id}
+          href={`/scholarships/${r.slug}`}
+          className="block p-3 bg-gray-50 text-blue-500 rounded-lg hover:bg-gray-100"
+        >
+          {r.title}
+        </Link>
+      ))}
+    </div>
+  </div>
+)}
           <WhatsAppCommunity/>
 
         </aside>
