@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
+import EmailSignup from "@/app/components/EmailSignup";
 
 /* ================= SEO METADATA ================= */
 export async function generateMetadata({ params }) {
@@ -70,6 +71,7 @@ export default async function BlogDetail({ params }) {
   }
 
   const degrees = ["BSc", "MSc", "PhD"];
+  const parts = blog.content.split("{{email_signup}}");
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -126,36 +128,42 @@ export default async function BlogDetail({ params }) {
         </div> */}
 
         {/* ================= CONTENT (MARKDOWN) ================= */}
-        <div className="prose prose-lg max-w-none prose-gray">
-          <ReactMarkdown
-            components={{
-              h2: ({ node, ...props }) => (
-                <h2 className="text-2xl font-bold mt-10 mb-4" {...props} />
-              ),
-              h3: ({ node, ...props }) => (
-                <h3 className="text-xl font-semibold mt-8 mb-3" {...props} />
-              ),
-              p: ({ node, ...props }) => (
-                <p className="mb-4 leading-relaxed" {...props} />
-              ),
-              ul: ({ node, ...props }) => (
-                <ul className="list-disc pl-5 mb-4" {...props} />
-              ),
-              li: ({ node, ...props }) => (
-                <li className="mb-2" {...props} />
-              ),
-              a: ({ node, ...props }) => (
-                <a className="text-blue-600 hover:underline" {...props} />
-              ),
-              strong: ({ node, ...props }) => (
-                <strong className="font-semibold" {...props} />
-              ),
-            }}
-          >
-            {blog.content}
-          </ReactMarkdown>
-        </div>
+       <div className="prose prose-lg max-w-none prose-gray">
+  {parts.map((part, index) => (
+    <div key={index}>
+      <ReactMarkdown
+        components={{
+          h2: ({ node, ...props }) => (
+            <h2 className="text-2xl font-bold mt-10 mb-4" {...props} />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3 className="text-xl font-semibold mt-8 mb-3" {...props} />
+          ),
+          p: ({ node, ...props }) => (
+            <p className="mb-4 leading-relaxed" {...props} />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul className="list-disc pl-5 mb-4" {...props} />
+          ),
+          li: ({ node, ...props }) => (
+            <li className="mb-2" {...props} />
+          ),
+          a: ({ node, ...props }) => (
+            <a className="text-blue-600 hover:underline" {...props} />
+          ),
+          strong: ({ node, ...props }) => (
+            <strong className="font-semibold" {...props} />
+          ),
+        }}
+      >
+        {part}
+      </ReactMarkdown>
 
+      {/* inject signup BETWEEN parts */}
+      {index < parts.length - 1 && <EmailSignup />}
+    </div>
+  ))}
+</div>
         {/* ================= CTA ================= */}
         <div className="mt-16 p-6 bg-gradient-to-r from-blue-950 to-teal-500 text-white rounded-xl text-center">
           <h2 className="text-xl font-bold mb-2">

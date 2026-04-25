@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import WhatsAppCommunity from "@/app/components/whatsapp";
+import EmailSignup from "@/app/components/EmailSignup";
 
 /* ================= METADATA ================= */
 export async function generateMetadata({ params }) {
@@ -113,6 +114,8 @@ function cleanTitle(title) {
 function RenderContent({ content }) {
   if (!content) return null;
 
+  const parts = content.split("{{email_signup}}");
+
   return (
     <div className="max-w-3xl mx-auto prose prose-gray max-w-none
       prose-p:text-gray-700 prose-p:leading-7
@@ -122,57 +125,57 @@ function RenderContent({ content }) {
       prose-a:text-blue-600 hover:prose-a:underline
       prose-strong:text-gray-900
     ">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-         h1: ({ children }) => (
-  <h1 className="text-3xl font-bold mt-10 mb-6 px-5 py-4 bg-gradient-to-r from-blue-50 to-teal-50 border-l-4 border-blue-600 rounded-xl shadow-sm text-gray-900">
-    {children}
-  </h1>
-),
+      {parts.map((part, index) => (
+        <div key={index} className="space-y-6">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h1: ({ children }) => (
+                <h1 className="text-3xl font-bold mt-10 mb-6 px-5 py-4 bg-gradient-to-r from-blue-50 to-teal-50 border-l-4 border-blue-600 rounded-xl shadow-sm text-gray-900">
+                  {children}
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900 border-b pb-2 border-gray-200">
+                  {children}
+                </h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="text-xl font-semibold mt-6 mb-3 text-gray-800">
+                  {children}
+                </h3>
+              ),
+              p: ({ children }) => (
+                <p className="text-gray-700 leading-7 mb-4">{children}</p>
+              ),
+              ul: ({ children }) => (
+                <ul className="list-disc pl-6 space-y-2 text-gray-700">{children}</ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal pl-6 space-y-2 text-gray-700">{children}</ol>
+              ),
+              a: ({ children, href }) => (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  {children}
+                </a>
+              ),
+              strong: ({ children }) => (
+                <strong className="font-semibold text-gray-900">{children}</strong>
+              ),
+            }}
+          >
+            {part}
+          </ReactMarkdown>
 
-          h2: ({ children }) => (
-            <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900 border-b pb-2 border-gray-200">
-              {children}
-            </h2>
-          ),
-
-          h3: ({ children }) => (
-            <h3 className="text-xl font-semibold mt-6 mb-3 text-gray-800">
-              {children}
-            </h3>
-          ),
-
-          p: ({ children }) => (
-            <p className="text-gray-700 leading-7 mb-4">{children}</p>
-          ),
-
-          ul: ({ children }) => (
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">{children}</ul>
-          ),
-
-          ol: ({ children }) => (
-            <ol className="list-decimal pl-6 space-y-2 text-gray-700">{children}</ol>
-          ),
-
-          a: ({ children, href }) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              {children}
-            </a>
-          ),
-
-          strong: ({ children }) => (
-            <strong className="font-semibold text-gray-900">{children}</strong>
-          ),
-        }}
-      >
-        {content}
-      </ReactMarkdown>
+          {/* inject signup BETWEEN parts */}
+          {index < parts.length - 1 && <EmailSignup />}
+        </div>
+      ))}
     </div>
   );
 }

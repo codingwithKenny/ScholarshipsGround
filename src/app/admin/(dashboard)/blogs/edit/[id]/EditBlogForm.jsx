@@ -88,12 +88,12 @@ export default function EditBlogForm({ blog }) {
           </h2>
 
           <RichMarkdownEditor
-            rows="8"
-            value={form.content}
-            onChange={(e) =>
-              setForm({ ...form, content: e.target.value })
-            }
-          />
+  rows="8"
+  value={form.content}
+  onChange={(value) =>
+    setForm({ ...form, content: value })
+  }
+/>
         </div>
 
         {/* IMAGE */}

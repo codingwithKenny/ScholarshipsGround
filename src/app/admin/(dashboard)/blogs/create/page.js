@@ -89,15 +89,15 @@ export default function CreateBlog() {
           <h2 className="text-xl font-semibold mb-6 text-gray-900">
             Blog Content
           </h2>
-
-          <RichMarkdownEditor
-            rows="8"
-            placeholder="Write your blog content..."
-            required
-            onChange={(e) =>
-              setForm({ ...form, content: e.target.value })
-            }
-          />
+<RichMarkdownEditor
+  value={form.content}
+  rows="8"
+  placeholder="Write your blog content..."
+  required
+  onChange={(value) =>
+    setForm({ ...form, content: value })
+  }
+/>
         </div>
 
         {/* IMAGE */}
