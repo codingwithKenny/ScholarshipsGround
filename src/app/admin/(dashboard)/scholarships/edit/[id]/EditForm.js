@@ -255,15 +255,11 @@ export default function EditForm({ scholarship }) {
 
               <div>
                 <label className="label">Eligibility</label>
-                <textarea
-                  className="textarea-modern"
-                  value={form.eligibility || ""}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      eligibility: e.target.value,
-                    })
-                  }
+                <RichMarkdownEditor
+              value={form.eligibility || ""}
+              onChange={(value) =>
+                setForm({ ...form, eligibility: value || "" })
+              }
                 />
               </div>
 
@@ -283,29 +279,21 @@ export default function EditForm({ scholarship }) {
 
               <div>
                 <label className="label">Benefits</label>
-                <textarea
-                  className="textarea-modern"
-                  value={form.benefits || ""}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      benefits: e.target.value,
-                    })
-                  }
+              <RichMarkdownEditor
+              value={form.benefits || ""}
+              onChange={(value) =>
+                setForm({ ...form, benefits: value || "" })
+              }
                 />
               </div>
 
               <div>
                 <label className="label">Requirements</label>
-                <textarea
-                  className="textarea-modern"
-                  value={form.requirements || ""}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      requirements: e.target.value,
-                    })
-                  }
+                <RichMarkdownEditor
+              value={form.requirements || ""}
+              onChange={(value) =>
+                setForm({ ...form, requirements: value || "" })
+              }
                 />
               </div>
 

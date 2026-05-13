@@ -267,10 +267,11 @@ export default function CreateOpportunity() {
           <>
             <label className="flex flex-col">
               Eligibility
-              <textarea
-                className="textarea"
+             <RichMarkdownEditor
                 value={form.eligibility}
-                onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
+                onChange={(value) =>
+                  setForm({ ...form, eligibility: value || "" })
+                }
               />
             </label>
 
@@ -287,19 +288,21 @@ export default function CreateOpportunity() {
 
             <label className="flex flex-col">
               Benefits
-              <textarea
-                className="textarea"
+              <RichMarkdownEditor
                 value={form.benefits}
-                onChange={(e) => setForm({ ...form, benefits: e.target.value })}
+                onChange={(value) =>
+                  setForm({ ...form, benefits: value || "" })
+                }
               />
             </label>
 
             <label className="flex flex-col">
               Requirements
-              <textarea
-                className="textarea"
+              <RichMarkdownEditor
                 value={form.requirements}
-                onChange={(e) => setForm({ ...form, requirements: e.target.value })}
+                onChange={(value) =>
+                  setForm({ ...form, requirements: value || "" })
+                }
               />
             </label>
 

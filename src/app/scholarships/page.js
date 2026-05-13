@@ -236,11 +236,11 @@ const status = !isGuide ? getStatus(sch.deadline) : null;
 
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
-                        {!isGuide && (
+                        {/* {!isGuide && (
   <span className={`text-xs px-3 py-1 rounded-full font-medium ${statusColor}`}>
     {status}
   </span>
-)}
+)} */}
 
                         {sch.category && (
                           <span className="ml-2 text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
