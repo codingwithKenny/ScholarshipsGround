@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createScholarship } from "../action";
 import RichMarkdownEditor from "@/app/components/RichMarkdownEditor";
+import rehypeRaw from "rehype-raw";
 
 export default function CreateOpportunity() {
   const router = useRouter();

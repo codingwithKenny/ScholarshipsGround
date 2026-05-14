@@ -1,36 +1,67 @@
 export const metadata = {
-  title: "ScholarshipGround | Scholarships, Internships & Global Opportunities",
+  title:
+    "ScholarshipGround | Fully Funded Scholarships, Internships & Study Abroad Opportunities",
+
   description:
-    "Discover verified scholarships, internships, jobs, and global opportunities for undergraduate, masters, and PhD students worldwide.",
+    "Discover fully funded scholarships, internships, fellowships, jobs, and study abroad opportunities for international students. Find undergraduate, master's, PhD, and no IELTS scholarships worldwide.",
+
+  keywords: [
+    "fully funded scholarships",
+    "scholarships for international students",
+    "study abroad scholarships",
+    "masters scholarships",
+    "phd scholarships",
+    "undergraduate scholarships",
+    "scholarships without IELTS",
+    "internships abroad",
+    "global opportunities",
+    "fellowships",
+    "study in Europe",
+    "study in Canada",
+    "study in UK",
+    "study in USA",
+  ],
+
+  metadataBase: new URL("https://www.scholarshipground.com"),
 
   alternates: {
-    canonical: "https://www.scholarshipground.com/",
+    canonical: "/",
   },
 
   openGraph: {
-    title: "ScholarshipGround | Global Scholarships & Opportunities",
+    title:
+      "ScholarshipGround | Fully Funded Scholarships & Global Opportunities",
+
     description:
-      "Find verified scholarships, internships, jobs, and study opportunities worldwide for students at all levels.",
+      "Explore verified fully funded scholarships, internships, fellowships, and study abroad opportunities for international students worldwide.",
+
     url: "https://www.scholarshipground.com/",
     siteName: "ScholarshipGround",
     type: "website",
+
     images: [
       {
-        url: "https://www.scholarshipground.com/og-image.png", // 👉 replace with your real OG image
+        url: "https://www.scholarshipground.com/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ScholarshipGround",
+        alt: "ScholarshipGround - Scholarships & Opportunities",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "ScholarshipGround",
+
+    title:
+      "ScholarshipGround | Fully Funded Scholarships Worldwide",
+
     description:
-      "Discover global scholarships, internships, jobs and opportunities.",
+      "Find scholarships, internships, fellowships, and study abroad opportunities for international students.",
+
     images: ["https://www.scholarshipground.com/og-image.png"],
   },
+
+  category: "education",
 };
 
 
