@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import WhatsAppCommunity from "@/app/components/whatsapp";
 import EmailSignup from "@/app/components/EmailSignup";
+import rehypeRaw from "rehype-raw";
 
 /* ================= METADATA ================= */
 export async function generateMetadata({ params }) {
@@ -129,6 +130,8 @@ function RenderContent({ content }) {
         <div key={index} className="space-y-6">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]} // 👈 THIS IS THE FIX
+
             components={{
               h1: ({ children }) => (
                 <h1 className="text-3xl font-bold mt-10 mb-6 px-5 py-4 bg-gradient-to-r from-blue-50 to-teal-50 border-l-4 border-blue-600 rounded-xl shadow-sm text-gray-900">
@@ -473,7 +476,7 @@ function ListSection({ title, data }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm">
       <h2 className="text-xl font-semibold mb-3">{title}</h2>
-      <ul className="list-disc pl-5 space-y-2 text-gray-700">
+      <ul className=" pl-5 space-y-2 text-gray-700">
         {data.map((item, i) => (
           <li key={i}>{item}</li>
         ))}
